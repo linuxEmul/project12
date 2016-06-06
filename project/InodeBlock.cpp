@@ -48,7 +48,17 @@ char* InodeBlock::initInode( char* blockPtr, int index )
 
 Inode InodeBlock::getInodeData( int inode )
 {
-	return inodeBlocks[inode];
+	Inode in;
+	in.mode = getMode( inode );
+	in.size = getSize( inode );
+	in.time = getTime( inode );
+	in.ctime = getCtime( inode );
+	in.mtime = getMtime( inode );
+	in.linksCount = getLinksCount( inode );
+	in.blocks = getBlocks( inode );
+	in.dataBlockList = getDataBlockList( inode );
+
+	return in;
 }
 
 char* InodeBlock::getMode( int inodeNum )
