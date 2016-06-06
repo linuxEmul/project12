@@ -4,7 +4,7 @@
 char* getData(char* data, int size)
 {
 	char *buffer = new char[size];
-	strncpy(buffer, data, size - 1);
+	memcpy(buffer, data, size - 1);
 	buffer[size - 1] = '\0';
 
 	return buffer;

@@ -28,5 +28,5 @@ char* DataBlock::getDataBlockData()
 
 void DataBlock::setData( char* buffer )
 {
-	strncpy( data, buffer, BLOCK_SIZE ); 
+	memcpy( data, buffer, BLOCK_SIZE ); 
 }
