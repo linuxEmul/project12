@@ -71,11 +71,11 @@ void DirectoryManager::Dir_Create(char* direc)
 		return;
 	}//디렉토리 중복 검사
 	
-
 	curDr.setInodeNum(currDirInode, topDirInode);
-
+	
 	if (strcmp(direc, "/") != 0)
 	{
+		topDr = *returnDir(topDirInode);
 		Entry e;
 
 		e.inodeNum = currDirInode;
@@ -92,7 +92,7 @@ void DirectoryManager::Dir_Create(char* direc)
 	//데이터블록에 데이터 추가(idx는 datablock Index)
 	int idx = fs.writeFS((char*)content.c_str());
 
-	char size[2] = { '0' + content.length(), };
+	char size[2] = { '0' + content.length()+1, };
 	char dataBlockList[] = { (char)('0' + idx),'\0' };
 
 	//Inode 정보 설정
@@ -253,9 +253,10 @@ Directory* DirectoryManager::returnDir(int in)
 	string data = "";
 	for( int i = 0; i < blocks; i++ )
 	{   
-		char* blockData;
+		char blockData[4096];
 		fs.readFS( dataIdx[ i ], blockData );
 		data += blockData;
+		cout << blockData;
 	}
 	Directory* dr = new Directory;
 
