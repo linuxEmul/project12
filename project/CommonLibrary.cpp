@@ -42,6 +42,41 @@ char* stringToCharArr(string arr)
 /*   Path   */
 
 /*   File   */
+char* getCurrentTime()
+{
+	char* currTime = new char[13];
+	time_t timer;
+	struct tm t;
+
+	timer = time(NULL);         //  현재 시각을 초 단위로 얻기
+	localtime_s(&t, &timer);      // 초 단위의 시간을 분라하여 구조체에 넣기
+
+	string str = to_string(t.tm_year + 1900);
+	if (t.tm_mon < 10)
+		str += "0" + to_string(t.tm_mon);
+	else str += to_string(t.tm_mon);
+
+	if (t.tm_mday < 10)
+		str += "0" + to_string(t.tm_mday);
+	else str += to_string(t.tm_mday);
+
+	if (t.tm_hour < 10)
+		str += "0" + to_string(t.tm_hour);
+	else str += to_string(t.tm_hour);
+
+	if (t.tm_min < 10)
+		str += "0" + to_string(t.tm_min);
+	else str += to_string(t.tm_min);
+
+	for (int i = 0; i < 12; i++)
+	{
+		currTime[i] = str.at(i);
+	}
+	currTime[12] = '\0';
+	return currTime;
+	//currTime = (char*)str.c_str();
+}
+
 void getCurrentTime(char* currTime)
 {
 	time_t timer;

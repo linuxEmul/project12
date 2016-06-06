@@ -45,6 +45,7 @@ public:
 	int writeFS( Inode inode );  // 파일 Create 시 호출
 	void writeFS( int inodeNum ); // 파일 Unlink(delete) 시 호출
 	int writeFS( char* blockData );
+	int writeFS_Dir(Inode inode);
 
 	int updateInode_readFile( int inodeNum, Inode inode ); // updateInode 기능
 	int updateInode_writeFile( int inodeNum, Inode inode ); // updateInode 기능

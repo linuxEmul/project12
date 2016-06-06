@@ -36,6 +36,7 @@ public:
 
 	void setInodeNum(int cur, int top); //디렉토리 만들때 호출. 초기화 해줌.
 
+	void addDirectory(Entry entry);
 	void addDirectory(Entry entry, int inodeNum);
 	void rmDirectory(int inodeN);
 	Entry* findName( char *);

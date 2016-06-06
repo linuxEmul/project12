@@ -61,6 +61,7 @@ char* stringToCharArr(string arr);
 /*   Path   */
 
 /*   File   */
+char* getCurrentTime();
 void getCurrentTime(char* currTime);
 void translateCharArrToIntArr(char* charArr, int* intArr, int count);
 void translateIntArrToCharArr(int* intArr, char* charArr, int count);

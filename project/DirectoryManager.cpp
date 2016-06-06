@@ -63,7 +63,7 @@ void DirectoryManager::Dir_Create(char* direc)
 	inode.ctime = time;
 
 
-	currDirInode = fs.writeFS(inode);
+	currDirInode = fs.writeFS_Dir(inode);
 
 	if (strcmp(direc, "/") != 0 && topDr.isExist((char*)currDir.c_str()) == true)
 	{
@@ -86,9 +86,10 @@ void DirectoryManager::Dir_Create(char* direc)
 
 	string content = ".,";
 
-	cout << enList[0].inodeNum << endl;
+	//cout << enList[0].inodeNum << endl;
 	content.append(to_string(enList[0].inodeNum));
 	content.append(";..," + to_string(enList[1].inodeNum));
+	content.append(";");
 	//데이터블록에 데이터 추가(idx는 datablock Index)
 	int idx = fs.writeFS((char*)content.c_str());
 
@@ -287,7 +288,7 @@ Directory* DirectoryManager::returnDir(int in)
 
 	for (int i = 0; i < vEntry.size(); i++)
 	{
-		dr->addDirectory(vEntry[i], in);
+		dr->addDirectory(vEntry[i]);
 	}
 	return dr;
 }

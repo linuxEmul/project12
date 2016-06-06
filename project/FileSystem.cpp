@@ -33,17 +33,17 @@ void FileSystem::loadFS( char* FS_File )
  		superBlock.inputSuperBlockData(); // SuperBlock 값 초기화
 		blockDescriptorTable.inputBlockDescriptorTableData(); // BDT 값 초기화
 
-		for ( int i = 0; i < 5; i++ ) // BlockBitmap 값 초기화
+		for ( int i = 0; i <= 5; i++ ) // BlockBitmap 값 초기화
 			blockBitmap[i] = '1';
 
 		
 
 		/* 디렉토리 초기화 */
 		DirectoryManager& dm = *DirectoryManager::getInstance();
-		dm.makeDefaultDirectory();
+		//dm.makeDefaultDirectory();
 
 		for (int i = 0; i < 7; i++) // InodeBitmap 값 초기화
-			inodeBitmap[i] = '1';
+			inodeBitmap[i] = '0';
 	}
 
 	else // 파일 열기 성공
@@ -136,6 +136,48 @@ int FileSystem::writeFS( Inode inode )
 
 	blockDescriptorTable.setUnassignedBlockNum( atoi( blockDescriptorTable.getUnassignedBlockNum() ) - 1 ); // unassignedBlockNum - 1 
 	blockDescriptorTable.setUnassignedInodeNum( atoi( blockDescriptorTable.getUnassignedInodeNum() ) - 1 ); // unassignedInodeNum - 1
+
+	return inodeNum;
+}
+
+int FileSystem::writeFS_Dir(Inode inode)
+{
+	int dataBlockNum = searchUnassignedBlockNum(); // 데이터블럭 번호 할당
+	int inodeNum = searchUnassignedInodeNum(); // 아이노드 번호 할당
+
+	char *buffer = new char[2];
+	itoa(dataBlockNum, buffer);
+
+	int inodeBlockNum = checkInodeBlockNum(inodeNum); // 아이노드 번호가 32이상인지 확인
+
+	if (inodeBlockNum == 4) // 아이노드 번호가 32이하 이면 블럭번호 4에 저장
+	{
+		inodeBlock[0].setMode(inodeNum, inode.mode);
+		inodeBlock[0].setSize(inodeNum, inode.size);
+		inodeBlock[0].setTime(inodeNum, inode.time);
+		inodeBlock[0].setCtime(inodeNum, inode.ctime);
+		inodeBlock[0].setMtime(inodeNum, inode.mtime);
+		inodeBlock[0].setLinksCount(inodeNum, inode.linksCount);
+		inodeBlock[0].setBlocks(inodeNum, inode.blocks);
+		inodeBlock[0].setDataBlockList(inodeNum, buffer);
+	}
+
+	else if (inodeBlockNum == 5) // 이상이면 블럭번호 5에 저장
+	{
+		inodeBlock[1].setMode(inodeNum - 32, inode.mode);
+		inodeBlock[1].setSize(inodeNum - 32, inode.size);
+		inodeBlock[1].setTime(inodeNum - 32, inode.time);
+		inodeBlock[1].setCtime(inodeNum - 32, inode.ctime);
+		inodeBlock[1].setMtime(inodeNum - 32, inode.mtime);
+		inodeBlock[1].setLinksCount(inodeNum - 32, inode.linksCount);
+		inodeBlock[1].setBlocks(inodeNum - 32, inode.blocks);
+		inodeBlock[1].setDataBlockList(inodeNum - 32, buffer);
+	}
+
+	inodeBitmap[inodeNum] = '1'; // 아이노드 비트맵 갱신
+
+	blockDescriptorTable.setUnassignedBlockNum(atoi(blockDescriptorTable.getUnassignedBlockNum()) - 1); // unassignedBlockNum - 1 
+	blockDescriptorTable.setUnassignedInodeNum(atoi(blockDescriptorTable.getUnassignedInodeNum()) - 1); // unassignedInodeNum - 1
 
 	return inodeNum;
 }

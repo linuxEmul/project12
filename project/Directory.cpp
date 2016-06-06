@@ -27,10 +27,25 @@ void Directory::setInodeNum(int cur, int top)
 {
 	entryList[0].inodeNum = cur; // 현재 디렉토리의 inode 번호 (.)
 	entryList[1].inodeNum = top; // 상위 디렉토리의 inode 번호 (..)
+	strcpy(entryList[0].name, ".");
+	strcpy(entryList[1].name, "..");
+}
+
+void Directory::addDirectory(Entry entry)
+{
+	if (isExist(entry.name))
+		return;
+
+	//새로 추가된 entry를 데이터 블록에 기록
+	memcpy(&entryList[entryCnt], &entry, sizeof(Entry));
+	entryCnt++;
 }
 
 void Directory::addDirectory(Entry entry, int inodeNum)
 {
+	if (isExist(entry.name))
+		return;
+
 	//새로 추가된 entry를 데이터 블록에 기록
 	memcpy(&entryList[entryCnt], &entry, sizeof(Entry));
 	entryCnt ++ ;
@@ -89,6 +104,7 @@ void Directory::addDirectory(Entry entry, int inodeNum)
 									   writeFS에 넘겨서 저장해준다
 									   (FS)   block idx와 blockdata를 넘겨서  writeFS에서는 해당 데이터 블럭에 blockdata를 쓴다
 									   */
+
 	int length = filedata.length();
 	char fileSize[7];
 	for (int i = 0; i <7; i++)
@@ -116,8 +132,9 @@ void Directory::addDirectory(Entry entry, int inodeNum)
 
 			length = 0;
 		}
-
+		//fs.resetDataBlock(dataIdx, blocks);
 		int returnIdx = fs.writeFS(blockData);
+
 		/*
 		fs.writeFS 에서는
 		block descriptor Table 미할당된 블록 수, -> 초기화할때랑 다시 써줄 때 갱신해줘야 함
