@@ -1,5 +1,5 @@
 #include "FileSystem.h"
-
+#include "DirectoryManager.h"
 
 FileSystem::FileSystem(void)
 {
@@ -36,10 +36,14 @@ void FileSystem::loadFS( char* FS_File )
 		for ( int i = 0; i < 5; i++ ) // BlockBitmap 값 초기화
 			blockBitmap[i] = '1';
 
-		for ( int i = 0; i < 7; i++ ) // InodeBitmap 값 초기화
-			inodeBitmap[i] = '1';
+		
 
 		/* 디렉토리 초기화 */
+		DirectoryManager& dm = *DirectoryManager::getInstance();
+		dm.makeDefaultDirectory();
+
+		for (int i = 0; i < 7; i++) // InodeBitmap 값 초기화
+			inodeBitmap[i] = '1';
 	}
 
 	else // 파일 열기 성공

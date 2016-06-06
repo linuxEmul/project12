@@ -4,9 +4,13 @@
 void PathManager::doAnalyzeFolder(char* direct, vector<string>& arr)
 {
 	string tmp = direct;
-
-	vector<string>& vStr = *tokenize(tmp, "/");
-	arr = vStr;
+	vector<string>* vStr = new vector<string>;
+	vStr->push_back("/");
+	vector<string> str = *tokenize(tmp, "/");
+	
+	for (int i = 0; i < str.size(); i++)
+		vStr->push_back(str[i]);
+	arr = *vStr;
 }
 
 bool PathManager::isRelativePath(char * path)
@@ -138,7 +142,7 @@ char* PathManager::getCurrentPath()
 			string s = dir;
 			reverse(begin(s), end(s));
 			
-			if (dir != "/" && !tmp.isEmpty()) {
+			if (strcmp(dir, "/") != 0 && !tmp.isEmpty()) {
 				fullPath += s;
 				fullPath += "/";
 			}

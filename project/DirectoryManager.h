@@ -50,6 +50,10 @@ public:
 	//경로 상 모든 디렉토리 닫기
 	void closeAllDir();
 
+	/*
+		외부로 빼낼 수 있는 함수
+	*/
+
 	//기본 디렉토리 생성 함수
 	void makeDefaultDirectory();
 };

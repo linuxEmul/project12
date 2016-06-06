@@ -135,7 +135,7 @@ void Directory::addDirectory(Entry entry, int inodeNum)
 	*/
 
 	/* (FS)   Inode Block 의 size, time(파일 마지막 접근시간), mtime(파일이 마지막으로 수정된 시간) blocks, block[] 갱신 -> FT, FS 모두 갱신 */
-	char* currTime;
+	char currTime[100];
 	getCurrentTime(currTime);
 	inodeData.time = currTime;
 	inodeData.mtime = currTime;

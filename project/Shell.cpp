@@ -435,7 +435,7 @@ void Shell::login()
 	ps.push("home");
 	pm.setPathStack(ps);
 
-	dm.openAllDir(pm.getCurrentPath());
+	//dm.openAllDir(pm.getCurrentPath());
 	cout << endl;
 	cout << "-----------------login success--------------" << endl;
 

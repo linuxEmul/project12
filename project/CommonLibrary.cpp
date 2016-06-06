@@ -9,6 +9,7 @@ char* getData(char* data, int size)
 
 	return buffer;
 }
+
 /*   FileSystem   */
 
 /*   Path   */

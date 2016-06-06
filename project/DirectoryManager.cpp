@@ -27,57 +27,73 @@ void DirectoryManager::Dir_Create(char* direc)
 
 	int n = arr.size() ; // n: 경로상의 폴더 개수?
 
-	string currDir = arr[n-1]; // 현재디렉토리 이름
-	string topDir = arr[n-2]; // 상위디렉토리 이름
+	string currDir = arr[n-1]; // 현재디렉토리 이름(내가 만들 디렉토리)
+	string topDir = ""; // 상위디렉토리 이름
 
-	if ( direc == "/")
-	{
-		topDir = arr[n-1]; // 현재디렉토리 이름
-	}
+	if (strcmp(direc, "/") == 0)
+		topDir = arr[n - 1]; // 현재디렉토리 이름(내가 만들 디렉토리)
+	else
+		topDir = arr[n - 2];
 	//addDirectory 
 
-	int currDirInode = returnInodeNum((char*)currDir.c_str());
+	int currDirInode = -1;
 	int topDirInode = returnInodeNum((char*)topDir.c_str());
 
-	Directory curDr;
-	Directory topDr;
-
-	curDr.setInodeNum(currDirInode, topDirInode);
-
-	if ( direc != "/")
-	{
-		Entry e;
-
-		e.inodeNum = currDirInode;
-		strcpy(e.name, currDir.c_str());
-
-		if ( topDr.isExist((char*)currDir.c_str()) == true )
-		{
-			cout << "dir exist" << endl; 
-			return ;
-		}//디렉토리 중복 검사
-
-
-		topDr.addDirectory(e, currDirInode);
-	}
-	DataBlock dB;
-
-	Entry *enList = curDr.entryList;
-
-	string content = ".,";
-	content += enList[0].inodeNum + ";..," + enList[1].inodeNum;
+	
 	
 	FileSystem& fs = *FileSystem::getInstance();
 	
 	//memcpy(dB.data, (void *)content.c_str, sizeof(content)); 
 	
-	//데이터블록에 데이터 추가(idx는 datablock Index)
-	int idx = fs.writeFS((char*)content.c_str());
 	
+	Directory curDr;
+	Directory topDr;
+
 	char time[13];
 	getCurrentTime(time);
-	char size[2] = { '0' + content.length(), };
+	
 	char linkCount[2] = "1";
+
+	//Inode 정보 설정
+	inode.blocks = "0";
+	inode.linksCount = linkCount;
+	inode.mtime = time;
+	inode.size = "0";
+	inode.time = time;
+	inode.ctime = time;
+
+
+	currDirInode = fs.writeFS(inode);
+
+	if (strcmp(direc, "/") != 0 && topDr.isExist((char*)currDir.c_str()) == true)
+	{
+		cout << "dir exist" << endl;
+		return;
+	}//디렉토리 중복 검사
+	
+
+	curDr.setInodeNum(currDirInode, topDirInode);
+
+	if (strcmp(direc, "/") != 0)
+	{
+		Entry e;
+
+		e.inodeNum = currDirInode;
+		strcpy(e.name, currDir.c_str());
+		topDr.addDirectory(e, currDirInode);
+	}
+	Entry *enList = curDr.entryList;
+
+	string content = ".,";
+	
+	cout << enList[0].inodeNum << endl;
+	content.append(to_string(enList[0].inodeNum));
+	content.append(";..," + to_string(enList[1].inodeNum));
+	//데이터블록에 데이터 추가(idx는 datablock Index)
+	int idx = fs.writeFS((char*)content.c_str());
+
+	char size[2] = { '0' + content.length(), };
+	char dataBlockList[] = { (char)('0' + idx),'\0' };
 
 	//Inode 정보 설정
 	inode.blocks = "1";
@@ -85,8 +101,10 @@ void DirectoryManager::Dir_Create(char* direc)
 	inode.mtime = time;
 	inode.size = size;
 	inode.time = time;
+	inode.dataBlockList = dataBlockList;
 
-	fs.writeFS(inode);
+	//데이터 블록 추가 후 업데이트
+	fs.updateInode_writeFile(currDirInode, inode);
 }
 
 Directory DirectoryManager::Dir_Read(char* direc)
@@ -142,6 +160,9 @@ int DirectoryManager::returnInodeNum( char * direc )
 	// 절대 경로에 속한 것들이 오픈되어야  ...
 	// 벡터로 반환받을 것들 차례대로 다 오픈
 
+	if (strcmp(direc, "/") == 0)
+		return 0;
+
 	// Root부터 차례로 탐색
 	PathManager& pm = *PathManager::getInstance();
 	vector<string> arr;
@@ -150,21 +171,19 @@ int DirectoryManager::returnInodeNum( char * direc )
 
 	FileSystem& fs = *FileSystem::getInstance();
 	
-	Inode inode =  fs.inodeBlock[0].getInodeData(0);
-
-	DataBlock dBlock ; // fs를 통해 가져온다
+	Inode inodeData =  fs.inodeBlock[0].getInodeData(0);
 	string str = "";
 
-
-	for ( int i = 0 ; i < atoi(inode.blocks); i ++ )
+	int* idx = new int[atoi(inodeData.blocks)];
+	translateCharArrToIntArr(inodeData.dataBlockList, idx, atoi(inodeData.blocks));
+	for ( int i = 0 ; i < atoi(inodeData.blocks); i ++ )
 	{
-		str += dBlock.data[ inode.dataBlockList[i] ]; // 블록리스트에 있는 데이터블록리스트
+		DataBlock dBlock = fs.dataBlocks[idx[i]-6];
+		str += dBlock.data; // 블록리스트에 있는 데이터블록리스트
 	}
 
 	//2. 엔트리 간 구분하기 -> 구분자 ";"
-
 	//3. 엔트리 속성 뽑아내기 -> 구분자 ","
-
 	string inodeNum;
 
 	vector<string>& entry = *tokenize(str,";");
@@ -182,14 +201,17 @@ int DirectoryManager::returnInodeNum( char * direc )
 
 	for ( int i = 1 ; i < arr.size()-1; i ++ )
 	{
-		Inode inode = ((stoi(inodeNum) < 32) ? fs.inodeBlock[0].getInodeData(stoi(inodeNum)) : fs.inodeBlock[1].getInodeData(stoi(inodeNum)));
+		inodeData = ((stoi(inodeNum) < 32) ? fs.inodeBlock[0].getInodeData(stoi(inodeNum)) : fs.inodeBlock[1].getInodeData(stoi(inodeNum)));
 
-		DataBlock dBlock ; // fs를 통해 가져온다
 		str = "";
 
-		for ( int i = 0 ; i < atoi(inode.blocks); i ++ )
+		idx = new int[atoi(inodeData.blocks)];
+		translateCharArrToIntArr(inodeData.dataBlockList, idx, atoi(inodeData.blocks));
+		for (int i = 0; i < atoi(inodeData.blocks); i++)
 		{
-			str += dBlock.data[ inode.dataBlockList[i] ]; // 블록리스트에 있는 데이터블록리스트
+
+			DataBlock dBlock = fs.dataBlocks[idx[i]];
+			str += dBlock.data; // 블록리스트에 있는 데이터블록리스트
 		}
 
 		vector<string>& entry = *tokenize(str,";");
@@ -306,9 +328,9 @@ void DirectoryManager::closeAllDir()
 }
 void DirectoryManager::makeDefaultDirectory()
 {
-	char* pathList[] = {"/bin","/dev","/etc","/home","/lib","/var"};
-	int count = 6;
-	for (int i = 0; i < 6; i++)
+	char* pathList[] = {"/","/bin","/dev","/etc","/home","/lib","/var"};
+	int count = 7;
+	for (int i = 0; i < count; i++)
 		Dir_Create(pathList[i]);
 }
 DirectoryManager* DirectoryManager::instance = NULL;
