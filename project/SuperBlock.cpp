@@ -10,14 +10,14 @@ SuperBlock::~SuperBlock(void)
 
 void SuperBlock::inputSuperBlockData()
 {
-	strncpy(magicNum, "20141296", magicNumLength - 1); 
-	strncpy(blockSize, "4096", blockSizeLength - 1 ); 
-	strncpy(blockPerGroup, "100", blockPerGroupLength - 1); 
-	strncpy(inodesNum, "64", inodesNumLength - 1 ); 
-	strncpy(inodeSize, "128", inodeSizeLength - 1 ); 
-	strncpy(finishTime, "201606040900", finishTimeLength - 1 ); 
-	strncpy(firstDataBlockNum, "6", firstDataBlockNumLength - 1 ); 
-	strncpy(rootInodeNum, "0", rootInodeNumLength - 1 ); 
+	memcpy(magicNum, "20141296", magicNumLength - 1); 
+	memcpy(blockSize, "4096", blockSizeLength - 1 ); 
+	memcpy(blockPerGroup, "100", blockPerGroupLength - 1); 
+	memcpy(inodesNum, "64", inodesNumLength - 1 ); 
+	memcpy(inodeSize, "128", inodeSizeLength - 1 ); 
+	memcpy(finishTime, "201606040900", finishTimeLength - 1 ); 
+	memcpy(firstDataBlockNum, "6", firstDataBlockNumLength - 1 ); 
+	memcpy(rootInodeNum, "0", rootInodeNumLength - 1 ); 
 }
 
 void SuperBlock::initSuperBlock( char* blockPtr )
