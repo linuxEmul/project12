@@ -40,7 +40,7 @@ void FileSystem::loadFS( char* FS_File )
 
 		/* 디렉토리 초기화 */
 		DirectoryManager& dm = *DirectoryManager::getInstance();
-		//dm.makeDefaultDirectory();
+		dm.makeDefaultDirectory();
 
 		for (int i = 0; i < 7; i++) // InodeBitmap 값 초기화
 			inodeBitmap[i] = '0';
