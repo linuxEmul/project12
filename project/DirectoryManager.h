@@ -49,4 +49,7 @@ public:
 
 	//경로 상 모든 디렉토리 닫기
 	void closeAllDir();
+
+	//기본 디렉토리 생성 함수
+	void makeDefaultDirectory();
 };

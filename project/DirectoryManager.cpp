@@ -304,4 +304,11 @@ void DirectoryManager::closeAllDir()
 	openedDirList.clear();
 	openedDir_FDList.clear();
 }
+void DirectoryManager::makeDefaultDirectory()
+{
+	char* pathList[] = {"/bin","/dev","/etc","/home","/lib","/var"};
+	int count = 6;
+	for (int i = 0; i < 6; i++)
+		Dir_Create(pathList[i]);
+}
 DirectoryManager* DirectoryManager::instance = NULL;

@@ -429,11 +429,13 @@ void Shell::login()
 	//Path Manager 초기화
 	//PathStack은 기본적으로 /home을 가짐
 	PathManager& pm = *PathManager::getInstance();
+	DirectoryManager& dm = *DirectoryManager::getInstance();
 	PathStack ps;
 	ps.push("/");
 	ps.push("home");
 	pm.setPathStack(ps);
 
+	dm.openAllDir(pm.getCurrentPath());
 	cout << endl;
 	cout << "-----------------login success--------------" << endl;
 
