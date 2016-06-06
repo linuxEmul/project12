@@ -37,9 +37,9 @@ void Directory::addDirectory(Entry entry, int inodeNum)
 
 	//DataBlock dB;
 	string content = entry.name;
-	content += "," + entry.inodeNum;
-	content += ";";
-	
+	content.append(",");
+	content.append(to_string(entry.inodeNum));
+	content.append(";");
 
 	/*
 	for ( int i = 0 ; i < entryCnt; i ++ )

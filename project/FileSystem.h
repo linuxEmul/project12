@@ -70,4 +70,6 @@ public:
 	void togleBlockBitmap( int blockNum );
 	void togleInodeBitmap( int inodeNum );
 
+
+	void test(){}
 };

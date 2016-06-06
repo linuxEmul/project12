@@ -52,7 +52,7 @@ void DirectoryManager::Dir_Create(char* direc)
 	char time[13];
 	getCurrentTime(time);
 	
-	char linkCount[2] = "1";
+	char linkCount[2] = "2";
 
 	//Inode 정보 설정
 	inode.blocks = "0";
@@ -86,7 +86,7 @@ void DirectoryManager::Dir_Create(char* direc)
 
 	string content = ".,";
 	
-	cout << enList[0].inodeNum << endl;
+	//cout << enList[0].inodeNum << endl;
 	content.append(to_string(enList[0].inodeNum));
 	content.append(";..," + to_string(enList[1].inodeNum));
 	//데이터블록에 데이터 추가(idx는 datablock Index)
