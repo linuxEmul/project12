@@ -10,15 +10,15 @@ Directory::Directory()
 	char currentDir[255] = ".";
 	char preDir[255] = "..";
 
-	memcpy(entryList[0].name, currentDir, 255);
-	memcpy(entryList[1].name, preDir, 255);
+	//memcpy(entryList[0].name, currentDir, 255);
+	//memcpy(entryList[1].name, preDir, 255);
 
 	for (int i = 2; i < 20; i++) {
 		memcpy(entryList[i].name, " ", 2);
 		entryList[i].inodeNum=-1;
 	}
 
-	entryCnt = 2;
+	entryCnt = 0;
 
 	//entryList[0].mode = 1; // 종류가 디렉토리라는 것을 지정.
 }
@@ -71,7 +71,7 @@ void Directory::addDirectory(Entry entry, int inodeNum)
 	string data = "";
 	for (int i = 0; i < blocks; i++)
 	{
-		char* blockData;
+		char blockData[BLOCK_SIZE];
 		fs.readFS(dataIdx[i], blockData);
 		data += blockData;
 	}

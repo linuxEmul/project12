@@ -253,11 +253,11 @@ Directory* DirectoryManager::returnDir(int in)
 	string data = "";
 	for( int i = 0; i < blocks; i++ )
 	{   
-		char blockData[4096];
+		char blockData[BLOCK_SIZE];
 		fs.readFS( dataIdx[ i ], blockData );
 		data += blockData;
-		cout << blockData;
 	}
+	
 	Directory* dr = new Directory;
 
 	//1. 엔트리 리스트 받아오기 -> 구분자 "/"

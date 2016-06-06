@@ -63,9 +63,13 @@ void FileSystem::saveFS( char* FS_File )
 
 }
 
-void FileSystem::readFS( int dataBlockNum, char* buffer )
+void FileSystem::readFS(int dataBlockNum, char* buffer)
 {
-	buffer = dataBlocks[ dataBlockNum - 6 ].getDataBlockData();
+	string str = dataBlocks[dataBlockNum - 6].getDataBlockData();
+
+	for (int i = 0; i < str.length(); i++)
+		buffer[i] = str.at(i);
+	buffer[str.length()] = '\0';
 }
 
 Inode FileSystem::readFS( int inodeNum )

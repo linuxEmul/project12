@@ -10,10 +10,29 @@ struct Entry
 class Directory
 {
 public:
-	Directory();
-
 	Entry entryList[20]; // 20 ??
 	int entryCnt;
+
+	Directory();
+	Directory(const Directory& t)
+	{
+		entryCnt = t.entryCnt;
+		for (int i = 0; i < entryCnt; i++)
+		{
+			entryList[i] = t.entryList[i];
+		}
+	}
+	Directory& operator=(const Directory& t)
+	{
+		entryCnt = t.entryCnt;
+		for (int i = 0; i < entryCnt; i++)
+		{
+			entryList[i] = t.entryList[i];
+		}
+		return *this;
+	}
+
+	
 
 	void setInodeNum(int cur, int top); //디렉토리 만들때 호출. 초기화 해줌.
 
