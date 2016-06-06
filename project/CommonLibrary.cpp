@@ -67,7 +67,11 @@ void getCurrentTime(char* currTime)
 		str += "0" + to_string(t.tm_min);
 	else str += to_string(t.tm_min);
 
-	currTime = (char*)str.c_str();
+	for ( int i = 0 ; i < 12; i++ )
+	{
+		currTime[i] = str.at(i);
+	}
+	//currTime = (char*)str.c_str();
 }
 
 void translateCharArrToIntArr(char* charArr, int* intArr, int count)
