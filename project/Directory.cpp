@@ -13,6 +13,11 @@ Directory::Directory()
 	memcpy(entryList[0].name, currentDir, 255);
 	memcpy(entryList[1].name, preDir, 255);
 
+	for (int i = 2; i < 20; i++) {
+		memcpy(entryList[i].name, " ", 2);
+		entryList[i].inodeNum=-1;
+	}
+
 	entryCnt = 2;
 
 	//entryList[0].mode = 1; // 종류가 디렉토리라는 것을 지정.
