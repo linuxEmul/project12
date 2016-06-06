@@ -38,7 +38,7 @@ public:
 
 	void addDirectory(Entry entry);
 	void addDirectory(Entry entry, int inodeNum);
-	void rmDirectory(int inodeN);
+	void rmDirectory(int inodeN, int myInodeNum);
 	Entry* findName( char *);
 
 	bool isExist(char *);

@@ -404,7 +404,7 @@ int File::unlinkFile(char* file)//, TableManager& tm, FileSystem& fs )
 	// 속하는 디렉토리에서 해당 파일과 아이노드번호 삭제 --> 디렉토리 클레스에서 파일명을 통해 엔트리 제거하는 함수 필요
 	DirectoryManager dm = DirectoryManager::getTmpInstance();
 	Directory dir = dm.Dir_Read(stringToCharArr((*pathFiles)[pathFiles->size() - 2]));
-	dir.rmDirectory(delFileInode->inode_number);
+	dir.rmDirectory(delFileInode->inode_number, dm.returnInodeNum(stringToCharArr((*pathFiles)[pathFiles->size()-2])));
 	/* 원래 inode의 링크수를 따져서 링크수가 0인것만 지워야하지만, 이 과제에서는 링크수를 고려하지 않으니깐 바로 삭제할 것 */
 
 	fs.writeFS(delFileInode->inode_number);

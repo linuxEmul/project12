@@ -169,13 +169,13 @@ Entry* Directory::findName(char* dName)
 {
 	for ( int i = 0; i < entryCnt; i ++ )
 	{
-		if ( dName == entryList[i].name )
+		if (strcmp(dName, entryList[i].name) == 0)
 			return &entryList[i];
 	}
 	return NULL;
 }
 
-void Directory::rmDirectory(int inodeNum)
+void Directory::rmDirectory(int inodeNum, int myInodeNum)
 {
 	FileSystem& fs = *FileSystem::getInstance();
 
@@ -188,7 +188,10 @@ void Directory::rmDirectory(int inodeNum)
 			break;
 		}
 	}
-	Inode inodeData = fs.inodeBlock->getInodeData(inodeNum);
+	entryCnt--;
+
+	//내 inode와 entry에서 정보 지우기
+	Inode inodeData = fs.inodeBlock->getInodeData(myInodeNum);
 	int blocks = atoi(inodeData.blocks);
 	int* dataIdx = new int[blocks];
 	translateCharArrToIntArr(inodeData.dataBlockList, dataIdx, blocks);
@@ -210,7 +213,7 @@ void Directory::rmDirectory(int inodeNum)
 	for (int i = 0; i < entryCnt; i++)
 	{
 		data += entryList[i].name;
-		data += "," + entryList[i].inodeNum;
+		data += "," + to_string(entryList[i].inodeNum);
 		data += ";";
 	}
 	/*
@@ -278,12 +281,12 @@ void Directory::rmDirectory(int inodeNum)
 	*/
 
 	/* (FS)   Inode Block 의 size, time(파일 마지막 접근시간), mtime(파일이 마지막으로 수정된 시간) blocks, block[] 갱신 -> FT, FS 모두 갱신 */
-	char* currTime;
+	char currTime[13];
 	getCurrentTime(currTime);
 	inodeData.time = currTime;
 	inodeData.mtime = currTime;
 
-	fs.updateInode_writeFile(inodeNum, inodeData);
+	fs.updateInode_writeFile(myInodeNum, inodeData);
 }
 
 bool Directory::isExist(char *dName)

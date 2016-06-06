@@ -76,7 +76,7 @@ char* PathManager::getAbsolutePath(char* path)
 	PathStack stack = ps;
 	string strPath = path;
 
-	stack.push("/"); //root
+	//stack.push("/"); //root
 
 	for (int i = 0; i < tokens.size(); i++)
 	{
@@ -142,10 +142,15 @@ char* PathManager::getCurrentPath()
 			string s = dir;
 			reverse(begin(s), end(s));
 			
-			if (strcmp(dir, "/") != 0 && !tmp.isEmpty()) {
+			if (fullPath.length() == 0)
 				fullPath += s;
+			else if (s != "/")
+			{
 				fullPath += "/";
+				fullPath += s;
 			}
+			else
+				fullPath += s;
 		}
 		reverse(begin(fullPath), end(fullPath));
 		char *cstr = new char[fullPath.length() + 1];
@@ -169,8 +174,18 @@ char * PathManager::getPathStackTrace(PathStack stack)
 
 		while ((dir = tmp.pop()))
 		{
-			fullPath += dir;
-			fullPath += "/";
+			string s = dir;
+			reverse(begin(s), end(s));
+
+			if (fullPath.length() == 0)
+				fullPath += s;
+			else if (s != "/")
+			{
+				fullPath += "/";
+				fullPath += s;
+			}
+			else
+				fullPath += s;
 		}
 		reverse(begin(fullPath), end(fullPath));
 		char *cstr = new char[fullPath.length() + 1];

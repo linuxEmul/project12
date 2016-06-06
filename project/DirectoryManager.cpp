@@ -92,9 +92,11 @@ void DirectoryManager::Dir_Create(char* direc)
 	content.append(";");
 	//데이터블록에 데이터 추가(idx는 datablock Index)
 	int idx = fs.writeFS((char*)content.c_str());
+	char dataBlockList[] = "   \0";
+	itoa(idx, dataBlockList);
 
 	char size[2] = { '0' + content.length() + 1, };
-	char dataBlockList[] = { (char)('0' + idx),'\0' };
+	//char dataBlockList = number;
 
 	//Inode 정보 설정
 	inode.blocks = "1";
@@ -145,13 +147,20 @@ void DirectoryManager::Dir_Unlink(char* direc)
 
 		// 속하는 상위 디렉토리의 엔트리에 해당 파일과 아이노드번호 삭제
 		Directory d = *returnDir(topInodeNum);
-		d.rmDirectory(currInodeNum);
+		d.rmDirectory(currInodeNum, topInodeNum);
 
 		FileSystem& fs = *FileSystem::getInstance();
 
 		// InodeBitmap의 해당 비트 0으로 set
 		// BlockBitmap의 dataIdx 에 해당하는 비트 0으로 set
 		// InodeBlock에서 아이노드 번호에 해당하는 아이노드 삭제
+		Inode inodeData = fs.inodeBlock->getInodeData(currInodeNum);
+		int blocks = atoi(inodeData.blocks);
+		int* dataIdx = new int[blocks];
+		translateCharArrToIntArr(inodeData.dataBlockList, dataIdx, blocks);
+
+		fs.resetDataBlock(dataIdx, blocks);
+
 		fs.writeFS(currInodeNum);
 	}
 }
@@ -179,8 +188,7 @@ int DirectoryManager::returnInodeNum(char * direc)
 	translateCharArrToIntArr(inodeData.dataBlockList, idx, atoi(inodeData.blocks));
 	for (int i = 0; i < atoi(inodeData.blocks); i++)
 	{
-		DataBlock dBlock = fs.dataBlocks[idx[i] - 6];
-		str += dBlock.data; // 블록리스트에 있는 데이터블록리스트
+		str += fs.dataBlocks[idx[i] - 6].getDataBlockData(); // 블록리스트에 있는 데이터블록리스트
 	}
 
 	//2. 엔트리 간 구분하기 -> 구분자 ";"
@@ -210,9 +218,7 @@ int DirectoryManager::returnInodeNum(char * direc)
 		translateCharArrToIntArr(inodeData.dataBlockList, idx, atoi(inodeData.blocks));
 		for (int i = 0; i < atoi(inodeData.blocks); i++)
 		{
-
-			DataBlock dBlock = fs.dataBlocks[idx[i]];
-			str += dBlock.data; // 블록리스트에 있는 데이터블록리스트
+			str += fs.dataBlocks[idx[i] - 6].getDataBlockData();
 		}
 
 		vector<string>& entry = *tokenize(str, ";");
@@ -220,7 +226,7 @@ int DirectoryManager::returnInodeNum(char * direc)
 		{
 			vector<string>& tmp = *tokenize(entry[j], ",");
 
-			if (tmp[0] == arr[1])
+			if (tmp[0] == arr[i+1])
 			{
 				inodeNum = tmp[1];
 				break;
@@ -249,7 +255,7 @@ Directory* DirectoryManager::returnDir(int in)
 
 	for (int i = 0; i < blocks; i++)
 	{
-		dBlock[i] = fs.dataBlocks[dataIdx[i]]; //dataBlock 내용들 
+		dBlock[i] = fs.dataBlocks[dataIdx[i]-6]; //dataBlock 내용들 
 	}
 	string data = "";
 	for (int i = 0; i < blocks; i++)

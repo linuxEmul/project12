@@ -4,30 +4,32 @@ using namespace std;
 
 int main()
 {
+	
 	FileSystem& fs = *FileSystem::getInstance();
 	Shell sh;
 	fs.loadFS("test.bin");
 	sh.run();
 	fs.saveFS("test.bin");
 	// FileSystem fs;
+	
 	PathManager& pm = *PathManager::getInstance();
 	PathStack ps;
-	
-	ps.push("a");
-	ps.push("b");
-	ps.push("c");
-	ps.push("d");
+
+	ps.push("/");
+	ps.push("home");
+	ps.push("bin");
+	//ps.push("d");
 
 	pm.setPathStack(&ps);
 	cout << pm.getCurrentPath() << endl;
 
-	cout << pm.getAbsolutePath("./../d/aa/dkfk") << endl;
-	
+	cout << pm.getAbsolutePath("./../../home../") << endl;
 
+	return 0;
 	TableManager* t = TableManager::getInstance();
 	TableManager& tt = *t;
 	Inode block;
-	block.blocks = (char*)""+2;
+	block.blocks = (char*)"" + 2;
 	block.ctime = "2";
 	block.dataBlockList = "1";
 	block.linksCount = "3";

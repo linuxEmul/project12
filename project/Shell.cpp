@@ -34,22 +34,40 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 	case _ls:
 		if (param.size() == 1)
 		{
-			dm.Dir_Read(pm.getCurrentPath());
+			Directory d = dm.Dir_Read(pm.getCurrentPath());
+			for (int i = 0; i < d.entryCnt; i++)
+			{
+				cout << d.entryList[i].name << " " << to_string(d.entryList[i].inodeNum) << endl;
+			}
 		} //일반 ls
 		else if (param.size() == 2)
 		{
+			//해당 경로가 존재하는 지 확인
+
+			//처리
+			Directory d;
+			char* t = pm.getAbsolutePath(stringToCharArr(param[1]));
+			//cout << pm.getAbsolutePath(stringToCharArr(param[1])) << endl;
+
 			if (pm.isRelativePath(stringToCharArr(param[1])) == true)
-				dm.Dir_Read(pm.getAbsolutePath(stringToCharArr(param[1])));
+				d = dm.Dir_Read(pm.getAbsolutePath(stringToCharArr(param[1])));
 			else if (pm.isRelativePath(stringToCharArr(param[1])) == false)
-				dm.Dir_Read(stringToCharArr(param[1]));
+				d = dm.Dir_Read(stringToCharArr(param[1]));
+			for (int i = 0; i < d.entryCnt; i++)
+			{
+				cout << d.entryList[i].name << " " << to_string(d.entryList[i].inodeNum) << endl;
+			}
 
 		} //절대경로, 상대경로
 		else cout << "error" << endl;
 		break;
 
 	case _mkdir:
+		display(pm.getCurrentPath());
 		if (param.size() == 2)
 		{
+			//경로 존재 확인
+			
 			//절대 경로로 바꿔줘야 함 direc
 
 			if (pm.isRelativePath(stringToCharArr(param[1])) == true)  //상대경로일 경우 ( mkdir ../a )
@@ -320,6 +338,8 @@ void Shell::analyzeCmd(const char * str)
 		processCmd(_close, result);
 	else if (cmd == "display")
 		processCmd(_display, result);
+	else if (cmd == "cd")
+		processCmd(_cd, result);
 	else if (cmd == "quit")
 		processCmd(_quit, result);
 }

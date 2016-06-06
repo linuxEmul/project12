@@ -42,8 +42,10 @@ void FileSystem::loadFS( char* FS_File )
 		DirectoryManager& dm = *DirectoryManager::getInstance();
 		dm.makeDefaultDirectory();
 
+		
 		for (int i = 0; i < 7; i++) // InodeBitmap 값 초기화
-			inodeBitmap[i] = '0';
+			inodeBitmap[i] = '1';
+			
 	}
 
 	else // 파일 열기 성공
@@ -173,8 +175,19 @@ int FileSystem::writeFS_Dir(Inode inode)
 		inodeBlock[1].setBlocks(inodeNum - 32, inode.blocks);
 		inodeBlock[1].setDataBlockList(inodeNum - 32, buffer);
 	}
-
 	inodeBitmap[inodeNum] = '1'; // 아이노드 비트맵 갱신
+	/*
+	cout << endl;
+	cout << "Assigned Inode Num : " << inodeNum << endl;
+	cout << "<Before Inode Bitmap>" << endl;
+	displayInodeBitmap();
+	
+	cout << "<After Inode Bitmap>" << endl;
+	displayInodeBitmap();
+	cout << "<After DataBlock Bitmap>" << endl;
+	displayBlockBitmap();
+	cout << "---------------------" << endl;
+	*/
 
 	blockDescriptorTable.setUnassignedBlockNum(atoi(blockDescriptorTable.getUnassignedBlockNum()) - 1); // unassignedBlockNum - 1 
 	blockDescriptorTable.setUnassignedInodeNum(atoi(blockDescriptorTable.getUnassignedInodeNum()) - 1); // unassignedInodeNum - 1
