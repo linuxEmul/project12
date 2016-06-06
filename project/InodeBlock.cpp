@@ -103,42 +103,47 @@ char* InodeBlock::getDataBlockList( int inodeNum )
 
 void InodeBlock::setMode( int inodeNum, char* mode )
 {
-	memcpy( inodeBlocks[inodeNum].mode, mode, modeLength ); 
+	strncpy( inodeBlocks[inodeNum].mode, mode, modeLength ); 
 }
 
 void InodeBlock::setSize( int inodeNum, char* size )
 {
-	memcpy( inodeBlocks[inodeNum].size, size, sizeLength ); 
+	strncpy( inodeBlocks[inodeNum].size, size, sizeLength ); 
 }
 
 void InodeBlock::setTime( int inodeNum, char* time )
 {
-	memcpy( inodeBlocks[inodeNum].time, time, timeLength ); 
+	strncpy( inodeBlocks[inodeNum].time, time, timeLength ); 
 }
 
 void InodeBlock::setCtime( int inodeNum, char* ctime )
 {
-	memcpy( inodeBlocks[inodeNum].ctime, ctime, ctimeLength ); 
+	strncpy( inodeBlocks[inodeNum].ctime, ctime, ctimeLength ); 
 }
 
 void InodeBlock::setMtime( int inodeNum, char* mtime )
 {
-	memcpy( inodeBlocks[inodeNum].mtime, mtime, mtimeLength ); 
+	strncpy( inodeBlocks[inodeNum].mtime, mtime, mtimeLength ); 
 }
 
 void InodeBlock::setLinksCount( int inodeNum, char* linksCount )
 {
-	memcpy( inodeBlocks[inodeNum].linksCount, linksCount, linksCountLength ); 
+	strncpy( inodeBlocks[inodeNum].linksCount, linksCount, linksCountLength ); 
 }
 
 void InodeBlock::setBlocks( int inodeNum, char* blocks )
 {
-	memcpy( inodeBlocks[inodeNum].blocks, blocks, blocksLength ); 
+	strncpy( inodeBlocks[inodeNum].blocks, blocks, blocksLength ); 
 }
 
 void InodeBlock::setDataBlockList( int inodeNum, char* dataBlockList )
 {
-	memcpy( inodeBlocks[inodeNum].dataBlockList,dataBlockList, 72);
+	int num = atoi( inodeBlocks[inodeNum].blocks );
+
+	for ( int i = 0; i < 72; i++ )
+		inodeBlocks[inodeNum].dataBlockList[i] = ' ';
+
+	strncpy( inodeBlocks[inodeNum].dataBlockList, dataBlockList, 72);
 }
 
 void InodeBlock::resetinodeBlock( int inodeNum )

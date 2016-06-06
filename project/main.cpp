@@ -4,7 +4,6 @@ using namespace std;
 
 int main()
 {
-
 	FileSystem& fs = *FileSystem::getInstance();
 	Shell sh;
 	fs.loadFS("test.bin");
