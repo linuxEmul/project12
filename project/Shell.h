@@ -28,6 +28,8 @@ public:
 	}
 
 	string getUserInputData();
+
+
 	void caseOfdisplayCat( char* filename );
 	void caseOfoverwriteCat( char* filename, string userInputData );
 	void caseOfjoinCat( char* filename, string userInputData );
@@ -39,6 +41,9 @@ public:
 
 	void caseOfSplitFile( char* filename );
 	void caseOfPasteFile( char* firstFile, char* secondFile );
+	void caseOfCopyFile( char* sourceFile, char* targetFile );
+
+	bool isSameDirectory( char* firstFile, char* secondFile );
 
 	void login();
 };	

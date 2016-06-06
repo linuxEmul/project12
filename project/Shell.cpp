@@ -134,9 +134,9 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 		if (param.size() == 3)
 		{
 			/*
-			if (a, b같은 디렉토리면 a를 b로 파일명 변경)
+			if ( isSameDirectory( param[1].c_str(), param[2].c_str() ) )
 			{
-
+					a, b같은 디렉토리면 a를 b로 파일명 변경
 			}
 			else
 			{
@@ -239,6 +239,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 	case _filecopy:
 		if (param.size() == 3)
 		{
+			caseOfCopyFile((char*)param[1].c_str(), (char*)param[2].c_str());
 		}
 		else cout << "error" << endl;
 		break;
@@ -418,6 +419,28 @@ void Shell::caseOfPasteFile(char* firstFile, char* secondFile)
 {
 	File file;
 	file.pasteFile(firstFile, secondFile);
+}
+
+void Shell::caseOfCopyFile( char* sourceFile, char* targetFile )
+{
+	File file;
+	file.copyFile( sourceFile, targetFile );
+}
+
+bool isSameDirectory( char* firstFile, char* secondFile )
+{
+	PathManager& pm = *PathManager::getInstance();
+	
+	char* firstFilePath = pm.getAbsolutePath( firstFile );
+	char* secondFilePath = pm.getAbsolutePath( secondFile );
+	
+	vector<string>* firstFileAllPath = pm.getAllAbsPath( firstFile );
+	vector<string>* secondFileAllPath = pm.getAllAbsPath( secondFile );
+
+	if ( firstFileAllPath[ firstFileAllPath->size()-2 ] == secondFileAllPath[ secondFileAllPath->size()-2 ] )
+		return true;
+
+	return false;
 }
 
 void Shell::login()
