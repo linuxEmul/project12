@@ -310,9 +310,14 @@ int File::unlinkFile(char* file) // file 은 absPath 형태
 	TableManager& tm = *TableManager::getInstance();
 	DirectoryManager& dm = *DirectoryManager::getInstance();
 
-	Directory* dir;
+	int* dirInodeNo = new int;
+	Entry* fileEntry = findFile( file, dirInodeNo );
 
-	Entry* fileEntry = findFile( file );
+	if( fileEntry == nullptr )
+	{
+		cout << " 존재하지 않는 파일 !  " << endl;
+		return 1;
+	}
 
 	// 현재 시스템의 테이블에 존재한다는 것은 오픈되어있다는 것이므로 실패!
 	if (tm.isExistInInodeTable( fileEntry->inodeNum ) )
@@ -323,11 +328,12 @@ int File::unlinkFile(char* file) // file 은 absPath 형태
 	// 속하는 디렉토리에서 해당 파일과 아이노드번호 삭제 --> 디렉토리 클레스에서 파일명을 통해 엔트리 제거하는 함수 필요
 	vector<string>* pathFiles = pm.getAllAbsPath( file );
 
-	*dir = dm.Dir_Read(stringToCharArr((*pathFiles)[pathFiles->size() - 2]));
-	dir->rmDirectory( fileEntry->inodeNum, dm.returnInodeNum(stringToCharArr((*pathFiles)[pathFiles->size()-2])));
+	Directory* dir = dm.returnDir( *dirInodeNo );
+	dir->rmDirectory( fileEntry->inodeNum, *dirInodeNo );
 	/* 원래 inode의 링크수를 따져서 링크수가 0인것만 지워야하지만, 이 과제에서는 링크수를 고려하지 않으니깐 바로 삭제할 것 */
-
-	fs.writeFS( fileEntry->inodeNum ); // inode 번호 넘겨서 파일정보 초기화
+	delete dirInodeNo;
+	delete dir;
+	//fs.writeFS( fileEntry->inodeNum ); // inode 번호 넘겨서 파일정보 초기화
 
 	return 0;
 }
@@ -354,6 +360,7 @@ Entry* File::findFile( char* filename,  int* dirInodeNo ) // 상대경로 혹은 절대�
 	// 디렉토리의 아이노드 번호를 통해 디렉토리를 받아옴
 	Directory* dir = dm.returnDir( *dirInodeNo );
 	fileEntry = dir->findName( filename ); // 디렉토리에서 파일엔트리를 찾음
+	delete dir;
 
 	return fileEntry; // 못찾은 경우 nullptr
 }
@@ -398,8 +405,10 @@ void File::changeFileMode(char* file, char* mode) // file 은filename
 {
 	FileSystem& fs = *FileSystem::getInstance();
 	TableManager& tm = *TableManager::getInstance();
+	PathManager& pm = *PathManager::getInstance();
 
-	int fd = open( findFile(file) );
+	int* dirInodeNo;
+	int fd = open( findFile(file, dirInodeNo) );
 
 	InodeElement* targetFileInodeE = (InodeElement*)tm.getElement(INODET, fd);
 	Inode inode = targetFileInodeE->inode; // file에 해당하는 inode를 얻어온다
@@ -407,7 +416,6 @@ void File::changeFileMode(char* file, char* mode) // file 은filename
 	inode.mode = new char[5];
 	for (int i = 0; i < 5; i++)
 		inode.mode[i] = mode[i];
-
 	// update해준다--> closeFile해서 FS도 갱신해줘야함
 	tm.updateInode(fd, inode);
 	fs.updateInode_writeFile(targetFileInodeE->inode_number, inode);
@@ -468,10 +476,10 @@ void File::removeFile(char* file)// file은 filename
 	PathManager* p = PathManager::getInstance();
 	PathManager& pm = *p;
 
-	int error = unlinkFile(pm.getAbsolutePath(file));
+	int error = unlinkFile( file );
 
-	if (!error) // error = 0 정상 / error = 1 오픈파일에러
-		cout << "파일이 오픈되어있어 삭제할 수 없습니다." << endl;
+	if ( error == 1 ) // error = 0 정상 / error = 1 에러
+		cout << "파일 삭제 과정에서 오류가 발생했습니다..." << endl;
 }
 
 /*  chmod 관련   */

@@ -32,6 +32,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 	PathManager& pm = *PathManager::getInstance();
 	DirectoryManager& dm = *DirectoryManager::getInstance();
 	FileSystem& fs = *FileSystem::getInstance();
+	TableManager& tm = *TableManager::getInstance();
 
 	switch (cl)
 	{
@@ -147,26 +148,29 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 
 
 	case _rm:
-		if (param.size() == 2)
-		{
-			string path = param[1];
-			DirectoryManager& dirm = *DirectoryManager::getInstance();
-			PathManager& pm = *PathManager::getInstance();
-			char* filename = stringToCharArr(pm.doAnalyzeFolder(stringToCharArr(path))[pm.doAnalyzeFolder(stringToCharArr(path)).size()-1]);
-	
-			vector<string> vAllAbs = *pm.getAllAbsPath(stringToCharArr(path));
-			Directory d = dirm.Dir_Read(stringToCharArr(vAllAbs[vAllAbs.size()-2]));
-			char kinds = isFile(filename, d);
-			if (kinds = 'f')
-			{
-				caseOfRemoveFile(filename);
-			}
-			else
-				;// casOfRemoveDir이든 뭐든 dir unlink를 불러주는 함수를 넣어주;
+      if (param.size() == 2)
+      {
+         string path = param[1];
+         DirectoryManager& dirm = *DirectoryManager::getInstance();
+         PathManager& pm = *PathManager::getInstance();
+         char* filename = stringToCharArr(pm.doAnalyzeFolder(stringToCharArr(path))[pm.doAnalyzeFolder(stringToCharArr(path)).size()-1]);
+         
+         if(pm.isRelativePath(stringToCharArr(path)))
+            path = pm.getAbsolutePath(stringToCharArr(path));
 
-		}
-		else cout << "error" << endl;
-		break;
+         vector<string> vAllAbs = *pm.getAllAbsPath(stringToCharArr(path));
+         Directory d = dirm.Dir_Read(stringToCharArr(vAllAbs[vAllAbs.size()-2]));
+         char kinds = isFile(filename, d);
+         if (kinds = 'f')
+         {
+            caseOfRemoveFile(filename);
+         }
+         else
+            ;// casOfRemoveDir이든 뭐든 dir unlink를 불러주는 함수를 넣어주;
+
+      }
+      else cout << "error" << endl;
+      break;
 
 
 	case _pwd:
@@ -180,8 +184,6 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 	case _chmod:
 		if (param.size() == 3)
 		{
-			PathManager& pm = *PathManager::getInstance();
-
 			string path = param[2];
 			if(pm.isRelativePath(stringToCharArr(param[2])))
 				path = pm.getAbsolutePath(stringToCharArr(param[2]));
@@ -311,17 +313,11 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 	case _close:
 		if (param.size() == 2)
 		{
-			string path = param[1];
-			DirectoryManager& dirm = *DirectoryManager::getInstance();
-			PathManager& pm = *PathManager::getInstance();
-			char* filename = stringToCharArr(pm.doAnalyzeFolder(stringToCharArr(path))[pm.doAnalyzeFolder(stringToCharArr(path)).size()-1]);
-	
-			vector<string> vAllAbs = *pm.getAllAbsPath(stringToCharArr(path));
-			Directory d = dirm.Dir_Read(stringToCharArr(vAllAbs[vAllAbs.size()-2]));
-
 			int fd = stoi(param[1]);
-			char kinds = isFile(filename, d);
-			if (kinds = 'f')
+
+			InodeElement* fileInode = tm.getInodeByFD(fd);
+			
+			if (fileInode->inode.mode[0] == 'f')
 			{
 				File file;
 				file.closeFile(fd);
