@@ -118,18 +118,20 @@ void TableManager::resize(TableType type) {
 		cout << "error in TableManager.cpp, resize Func" << endl;
 	}
 }
-/*
+
 TableManager::~TableManager() {
-	if (instance)
-		delete instance;
-	if (systemFileTable)
-		delete[] systemFileTable;
-	if (fileDescriptorTable)
-		delete[] fileDescriptorTable;
-	if (inodeTable)
-		delete[] inodeTable;
+	if (allowDelete) {
+		if (instance)
+			delete instance;
+		if (systemFileTable)
+			delete[] systemFileTable;
+		if (fileDescriptorTable)
+			delete[] fileDescriptorTable;
+		if (inodeTable)
+			delete[] inodeTable;
+	}
 }
-*/
+
 
 int TableManager::addElement(TableType type, void* data)
 {
@@ -471,3 +473,4 @@ bool TableManager::isExistInInodeTable(int inodeNum)
 	return false;
 }
 TableManager* TableManager::instance = NULL;
+bool TableManager::allowDelete = false;

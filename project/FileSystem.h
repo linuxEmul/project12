@@ -14,6 +14,15 @@ private:
 	FileSystem(void);
 public:
 	static bool allowDelete;
+	~FileSystem()
+	{
+		if (allowDelete)
+		{
+			if (instance)
+				delete instance;
+		}
+	}
+
 	static FileSystem* getInstance() {
 		if (!instance) {
 			instance = new FileSystem();

@@ -395,3 +395,4 @@ bool DirectoryManager::isReallyExist(char * path)
 	}
 }
 DirectoryManager* DirectoryManager::instance = NULL;
+bool DirectoryManager::allowDelete = false;

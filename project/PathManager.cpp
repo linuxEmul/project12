@@ -207,3 +207,4 @@ void PathManager::setAbsPathInPathStack(char * path)
 	}
 }
 PathManager* PathManager::instance = NULL;
+bool PathManager::allowDelete = false;

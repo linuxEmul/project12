@@ -14,8 +14,19 @@ private:
 	PathStack ps;
 	static PathManager* instance;
 
-	PathManager(){}
+	PathManager() {}
 public:
+	static bool allowDelete;
+
+	~PathManager()
+	{
+		if (allowDelete)
+		{
+			if (instance)
+				delete instance;
+		}
+	}
+
 	// 폴더 분석 함수
 	void doAnalyzeFolder(char* direc, vector<string>& arr);
 	vector<string> doAnalyzeFolder(char* direc) {

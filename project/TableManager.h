@@ -23,6 +23,7 @@ class TableManager
 private:
 	//유일한 Instance
 	static TableManager* instance;
+	
 
 	//Tables
 	int* fileDescriptorTable;
@@ -64,8 +65,11 @@ private:
 
 
 public:
+	//삭제를 허용한다
+	static bool allowDelete;
+
 	//할당한 모든 변수 반환
-	//~TableManager();
+	~TableManager();
 
 	//Static Members
 	static TableManager* getInstance() {

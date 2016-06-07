@@ -16,6 +16,17 @@ private:
 
 	}
 public:
+	//삭제를 허용한다
+	static bool allowDelete;
+	~DirectoryManager()
+	{
+		if (allowDelete)
+		{
+			if (instance)
+				delete instance;
+		}
+	}
+
 	void Dir_Create(char* direc);
 	Directory Dir_Read(char* direc);
 	void Dir_Unlink(char* direc);
