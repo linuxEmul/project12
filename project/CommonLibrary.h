@@ -44,9 +44,9 @@ const int sizeLength = 7; // √÷¥Î 94 * 4096
 const int timeLength = 13;
 const int ctimeLength = 13;
 const int mtimeLength = 13;
-const int linksCountLength = 2;
+const int linksCountLength = 3;
 const int blocksLength = 3;
-const int dataBlockList = 72;
+const int dataBlockList = 78;
 
 char* getData(char* data, int size);
 /*   FileSystem   */

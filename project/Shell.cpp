@@ -48,6 +48,12 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 		else if (param.size() == 2)
 		{
 			//해당 경로가 존재하는 지 확인
+			vector<string>& allPath = *pm.getAllAbsPath(stringToCharArr(param[1]));
+			if (!dm.isReallyExist(stringToCharArr(allPath[allPath.size() - 1])))
+			{
+				display("해당 경로가 존재하지 않습니다.");
+				return;
+			}
 
 			//처리
 			Directory d;
@@ -75,17 +81,24 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 		display(pm.getCurrentPath());
 		if (param.size() == 2)
 		{
+			//경로 변환
+			string path = param[1];
+			if (pm.isRelativePath(stringToCharArr(path)))
+				path = pm.getAbsolutePath(stringToCharArr(path));
+
 			//경로 존재 확인
+			vector<string>& allPath = *pm.getAllAbsPath(stringToCharArr(path));
+			if (dm.isReallyExist(stringToCharArr(allPath[allPath.size() - 1])))
+			{
+				display("해당 경로가 이미 존재합니다.");
+				return;
+			}
+			if (!dm.isReallyExist(stringToCharArr(allPath[allPath.size() - 2]))) {
+				display("해당 경로가 존재하지 않습니다.");
+				return;
+			}
 			
-			//절대 경로로 바꿔줘야 함 direc
-
-			if (pm.isRelativePath(stringToCharArr(param[1])) == true)  //상대경로일 경우 ( mkdir ../a )
-				dm.Dir_Create(pm.getAbsolutePath(stringToCharArr(param[1])));
-			else if (pm.isRelativePath(stringToCharArr(param[1])) == false)  // ( mkdir /a/b ) 
-				dm.Dir_Create(stringToCharArr(param[1]));
-
-			// 절대경로에 맞는 위치에 디렉토리 생성
-			// 상대경로에 맞는 위치에 디렉토리 생성
+			dm.Dir_Create(stringToCharArr(path));
 		}
 		else cout << "error" << endl;
 		break;
@@ -93,6 +106,14 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 	case _rmdir:
 		if (param.size() == 2)
 		{
+			//경로 존재 확인
+			vector<string>& allPath = *pm.getAllAbsPath(stringToCharArr(param[1]));
+			if (dm.isReallyExist(stringToCharArr(allPath[allPath.size() - 1])))
+			{
+				display("해당 경로가 이미 존재합니다.");
+				return;
+			}
+
 			if (pm.isRelativePath(stringToCharArr(param[1])) == true)
 				dm.Dir_Unlink(pm.getAbsolutePath(stringToCharArr(param[1])));
 			else if (pm.isRelativePath(stringToCharArr(param[1])) == false)

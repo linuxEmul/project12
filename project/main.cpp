@@ -4,14 +4,17 @@ using namespace std;
 
 int main()
 {
-	
-	FileSystem& fs = *FileSystem::getInstance();
-	Shell sh;
-	fs.loadFS("test.bin");
-	sh.run();
-	fs.saveFS("test.bin");
-	// FileSystem fs;
-	
+	try {
+		FileSystem& fs = *FileSystem::getInstance();
+		Shell sh;
+		fs.loadFS("test.bin");
+		sh.run();
+		fs.saveFS("test.bin");
+		// FileSystem fs;
+	}
+	catch (char* msg) {
+		cerr << msg << endl;
+	}
 
 	PathManager& pm = *PathManager::getInstance();
 	PathStack ps;

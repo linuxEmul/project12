@@ -25,7 +25,7 @@ void FileSystem::loadFS( char* FS_File )
 	initFS();
 	initBlocks(); // 클래스 블럭들 포인터 초기화
 
-	int fd = open( FS_File, O_BINARY | O_RDONLY, "b" );
+	int fd = open( FS_File, O_RDONLY );
 
 	if ( fd == -1 ) // 파일 열기 실패
 	{	
@@ -57,7 +57,7 @@ void FileSystem::loadFS( char* FS_File )
 
 void FileSystem::saveFS( char* FS_File )
 {
-	int fd = open( FS_File, _O_WRONLY | O_CREAT | O_BINARY );
+	int fd = open( FS_File, _O_WRONLY | O_CREAT );
 
 	write( fd, blockList, BLOCK_SIZE * NUM_BLOCKS );
 

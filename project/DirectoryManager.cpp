@@ -102,7 +102,7 @@ void DirectoryManager::Dir_Create(char* direc)
 		char dataBlockList[] = "   \0";
 		itoa(idx, dataBlockList);
 
-		char size[2] = { '0' + content.length() + 1, };
+		char size[2] = { '0' + content.length()};
 		//char dataBlockList = number;
 
 		//Inode 정보 설정
@@ -140,6 +140,8 @@ Directory DirectoryManager::Dir_Read(char* direc)
 	}
 	catch (char* msg)
 	{
+		if (strcmp(direc, "파일을 입력했습니다.") == 0)
+			throw msg;
 		cerr << "error : " << msg << endl;
 	}
 }
@@ -225,7 +227,10 @@ int DirectoryManager::returnInodeNum(char * direc)
 		}
 
 	}
-
+	if (inodeNum == "") {
+		//cout << "넘어온 경로 : " << direc << ", ";
+		throw "inodeNumber를 구할 수 없습니다.";
+	}
 	for (int i = 1; i < arr.size() - 1; i++)
 	{
 		inodeData = ((stoi(inodeNum) < 32) ? fs.inodeBlock[0].getInodeData(stoi(inodeNum)) : fs.inodeBlock[1].getInodeData(stoi(inodeNum)));
@@ -253,7 +258,7 @@ int DirectoryManager::returnInodeNum(char * direc)
 		}
 	}
 	if (inodeNum == "") {
-		cout << "넘어온 경로 : " << direc << ", ";
+		//cout << "넘어온 경로 : " << direc << ", ";
 		throw "inodeNumber를 구할 수 없습니다.";
 	}
 	return stoi(inodeNum);
@@ -369,5 +374,16 @@ void DirectoryManager::makeDefaultDirectory()
 	int count = 7;
 	for (int i = 0; i < count; i++)
 		Dir_Create(pathList[i]);
+}
+bool DirectoryManager::isReallyExist(char * path)
+{
+	try {
+		int i = returnInodeNum(path);
+		return true;
+	}
+	catch (char* msg) {
+		//cout << msg << endl;
+		return false;
+	}
 }
 DirectoryManager* DirectoryManager::instance = NULL;

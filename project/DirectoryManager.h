@@ -56,4 +56,6 @@ public:
 
 	//기본 디렉토리 생성 함수
 	void makeDefaultDirectory();
+
+	bool isReallyExist(char* path);
 };
