@@ -83,7 +83,7 @@ void File::readFile(int fd, char* buffer, int size)//,TableManager& tm , FileSys
 	FileSystem& fs = *FileSystem::getInstance();
 	TableManager& tm = *TableManager::getInstance();
 	
-	InodeElement* inodeE = ((InodeElement*)tm.getElement(INODET, fd));
+	InodeElement* inodeE = tm.getInodeByFD( fd );
 	Inode inode = inodeE->inode;
 
 	int blocks = atoi(inode.blocks);
@@ -93,13 +93,13 @@ void File::readFile(int fd, char* buffer, int size)//,TableManager& tm , FileSys
 	int filePointer = ((SFTElement*)tm.getElement(SFT, fd))->file_pointer;// (FT)   getFilePoint( fd ) fd가 가르키는 시스템파일테이블에서 파일포인터를 받아온다
 
 																		  // 하나의 data에다 각 데이터블럭에 분산됬던 것들을 합침
-	string data = "";
-	for (int i = 0; i < blocks; i++)
-	{
-		char* blockData;
-		fs.readFS(dataIdx[i], blockData);
-		data += blockData;
-	}
+   string data = "";
+   for (int i = 0; i < blocks; i++)
+   {
+      char blockData[BLOCK_SIZE];
+      fs.readFS(dataIdx[i], blockData);
+      data += blockData;
+   }
 
 	int fileSize = data.length();
 	if (size == 0) // 파일내용 전체 읽을 때 사용
@@ -127,7 +127,7 @@ void File::writeFile(int fd, char* buffer)//,  TableManager& tm, FileSystem& fs 
 	TableManager& tm = *TableManager::getInstance();
 
 	// (FT)   fd를 타고가서 inode에서 data block idx받아오기
-	InodeElement* inodeE = ((InodeElement*)tm.getElement(INODET, tm.getInodeNumByFD( fd ) ) );
+	InodeElement* inodeE = tm.getInodeByFD( fd );
 	Inode inode = inodeE->inode;
 	int blocks = atoi(inode.blocks);
 	int* dataIdx = new int[blocks];
@@ -137,15 +137,15 @@ void File::writeFile(int fd, char* buffer)//,  TableManager& tm, FileSystem& fs 
 		(FS)   data block[idx]에 저장된 데이터 읽어오기
 		하나의 data에다 각 데이터블럭에 분산됬던 것들을 합침
 	*/
-	string data = "";
-	for (int i = 0; i < blocks; i++)
-	{
-		char* blockData;
-		fs.readFS(dataIdx[i], blockData);
-		data += blockData;
-	}
-
-	string filedata = data + buffer;   // 기존데이터블럭의 내용과 새로운 내용을 합친 것
+   string data = "";
+   for (int i = 0; i < blocks; i++)
+   {
+      char blockData[BLOCK_SIZE];
+      fs.readFS(dataIdx[i], blockData);
+      data += blockData;
+   }
+	//cout << data.length() << endl;
+	//string filedata = data;// + buffer;   // 기존데이터블럭의 내용과 새로운 내용을 합친 것
 
 	fs.resetDataBlock(dataIdx, blocks);// writeFile에서 writeFS를 부르기 전에 BlockBitmap의 파일에 할당됬던 indxe 초기화
 									   /* 참고 BlockBitmap이 1인 경우만 데이터블럭이 저장되어있는 것이므로 getDatablock은 blockbitmap이 1인지 검사 후 저장된 data return */
@@ -155,11 +155,10 @@ void File::writeFile(int fd, char* buffer)//,  TableManager& tm, FileSystem& fs 
 									   writeFS에 넘겨서 저장해준다
 									   (FS)   block idx와 blockdata를 넘겨서  writeFS에서는 해당 데이터 블럭에 blockdata를 쓴다
 									   */
-	int length = filedata.length();
-	char fileSize[7];
-	itoa(length, fileSize);
 
-	inode.size = fileSize;
+	int length = data.length();
+	char fileSize[7];
+	itoa(length, inode.size);
 
 	// 파일의 데이터를 FS의 DataBlock에 써주는 부분
 	char* blockData;
@@ -169,7 +168,7 @@ void File::writeFile(int fd, char* buffer)//,  TableManager& tm, FileSystem& fs 
 		if (length > BLOCK_SIZE)
 		{
 			blockData = new char[BLOCK_SIZE];
-			strcpy(blockData, (filedata.substr(0, BLOCK_SIZE)).c_str());
+			strcpy(blockData, (data.substr(0, BLOCK_SIZE)).c_str());
 
 			length -= BLOCK_SIZE;
 		}
@@ -177,7 +176,7 @@ void File::writeFile(int fd, char* buffer)//,  TableManager& tm, FileSystem& fs 
 		else
 		{
 			blockData = new char[length];
-			strcpy(blockData, (filedata.substr(0, length)).c_str());
+			strcpy(blockData, (data.substr(0, length)).c_str());
 
 			length = 0;
 		}
@@ -197,7 +196,7 @@ void File::writeFile(int fd, char* buffer)//,  TableManager& tm, FileSystem& fs 
 	translateIntArrToCharArr(&new_Blocks, inode.blocks, 1);
 
 	/* (FS)   Inode Block 의 size, time(파일 마지막 접근시간), mtime(파일이 마지막으로 수정된 시간) blocks, block[] 갱신 -> FT, FS 모두 갱신 */
-	char* currTime;
+	char currTime[13] = { 0 };
 	getCurrentTime(currTime);
 	inode.time = currTime;
 	inode.mtime = currTime;
@@ -350,8 +349,6 @@ Entry* File::findFile( char* filename,  int* dirInodeNo ) // 상대경로 혹은 절대�
 	//int count = pathFiles.size();
 	vector<string>::size_type count = pathFiles.size();
 	// 타겟파일 제외한 절대경로를 통해 디렉토리를 찾아 아이노드 번호를 받음
-	for ( vector<string>::size_type i = 0 ; i < count ; i++ )
-		cout << pathFiles[count-2] << endl;
 
 	*dirInodeNo = dm.returnInodeNum( (char*) pathFiles.at( count -2 ).c_str() );
 	// 디렉토리의 아이노드 번호를 통해 디렉토리를 받아옴
