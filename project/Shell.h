@@ -44,6 +44,6 @@ public:
 	void caseOfCopyFile( char* sourceFile, char* targetFile );
 
 	bool isSameDirectory( char* firstFile, char* secondFile );
-
+	void displayMode(char* mode);
 	void login();
 };	

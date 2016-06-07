@@ -28,6 +28,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 {
 	PathManager& pm = *PathManager::getInstance();
 	DirectoryManager& dm = *DirectoryManager::getInstance();
+	FileSystem& fs = *FileSystem::getInstance();
 
 	switch (cl)
 	{
@@ -37,7 +38,11 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 			Directory d = dm.Dir_Read(pm.getCurrentPath());
 			for (int i = 0; i < d.entryCnt; i++)
 			{
-				cout << d.entryList[i].name << " " << to_string(d.entryList[i].inodeNum) << endl;
+				Inode inodeData = fs.inodeBlock->getInodeData(d.entryList[i].inodeNum);
+				cout << to_string(d.entryList[i].inodeNum) << " ";
+				//모드 출력
+				displayMode(inodeData.mode);
+				cout << " " << inodeData.linksCount << " " << inodeData.size << " " << inodeData.ctime << " " << d.entryList[i].name << endl;
 			}
 		} //일반 ls
 		else if (param.size() == 2)
@@ -55,7 +60,11 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 				d = dm.Dir_Read(stringToCharArr(param[1]));
 			for (int i = 0; i < d.entryCnt; i++)
 			{
-				cout << d.entryList[i].name << " " << to_string(d.entryList[i].inodeNum) << endl;
+				Inode inodeData = fs.inodeBlock->getInodeData(d.entryList[i].inodeNum);
+				cout << to_string(d.entryList[i].inodeNum) << " ";
+				//모드 출력
+				displayMode(inodeData.mode);
+				cout << " " << inodeData.linksCount << " " << inodeData.size << " " << inodeData.ctime << " " << d.entryList[i].name << endl;
 			}
 
 		} //절대경로, 상대경로
@@ -481,5 +490,40 @@ void Shell::login()
 	//dm.openAllDir(pm.getCurrentPath());
 	cout << endl;
 	cout << "-----------------login success--------------" << endl;
+
+}
+void Shell::displayMode(char* mode) {
+	if (mode[0] == 'd')
+		cout << mode[0];
+	else
+		cout << '-';
+
+	for (int i = 1; i < 4; i++)
+	{
+		switch (mode[i])
+		{
+		case '1':
+			cout << "r--";
+			break;
+		case '2':
+			cout << "-w-";
+			break;
+		case '3':
+			cout << "rw-";
+			break;
+		case '4':
+			cout << "--x";
+			break;
+		case '5':
+			cout << "r-x";
+			break;
+		case '6':
+			cout << "-wx";
+			break;
+		case '7':
+			cout << "rwx";
+			break;
+		}
+	}
 
 }
