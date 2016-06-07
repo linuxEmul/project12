@@ -40,7 +40,6 @@ public:
 	DataBlock dataBlocks[94]; // 블럭번호 6 ~
 
 	/* 필요 변수들 */
-	~FileSystem(void);
 
 	void initFS();
 	void loadFS( char* FS_File ); 

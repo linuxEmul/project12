@@ -6,10 +6,6 @@ FileSystem::FileSystem(void)
 }
 
 
-FileSystem::~FileSystem(void)
-{
-}
-
 void FileSystem::initFS()
 {
 	/* blockList √ ±‚»≠ */
