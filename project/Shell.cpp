@@ -357,7 +357,7 @@ void Shell::analyzeCmd(const char * str)
 void Shell::caseOfdisplayCat(char* filename)
 {
 	File file;
-	int fd = file.findFile(filename);
+	int fd = file.open( file.findFile(filename) );
 
 	char enter = 13;
 	string sEnter = enter + "";
