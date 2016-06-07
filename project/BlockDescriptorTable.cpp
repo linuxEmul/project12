@@ -66,6 +66,8 @@ void BlockDescriptorTable::setUnassignedInodeNum( int num )
 	char *buffer = new char[unassignedInodeNumLength - 1];
 	itoa( num, buffer );
 	memcpy( unassignedInodeNum, buffer, sizeof( *buffer ) + 1 ); 
+
+	delete[] buffer;
 }
 
 void BlockDescriptorTable::setUnassignedBlockNum( int num )
@@ -73,5 +75,7 @@ void BlockDescriptorTable::setUnassignedBlockNum( int num )
 	char *buffer = new char[unassignedBlockNumLength - 1];
 	itoa( num, buffer );
 	memcpy( unassignedBlockNum, buffer, sizeof( *buffer ) + 1 );
+
+	delete[] buffer;
 }
  
