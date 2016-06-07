@@ -390,7 +390,6 @@ int File::open( Entry* fileEntry )
 		return fd;
 	}
 	
-	cout << "open return " << endl;
 	return openFile( *fileEntry );
 }
 
@@ -448,16 +447,19 @@ void File::displayCat(int fd)
 
 	char* buffer = nullptr;
 
+	readFile(fd, buffer, size);
+
 	if (buffer == nullptr)
 		return;
 
-	readFile(fd, buffer, size);
 	for (int j = 0; j < lineNo; j++)
 	{
 		for (int i = 0; i < perLineChar; i++)
 			cout << buffer[i];
 		cout << endl;
 	}
+
+	delete buffer;
 }
 
 /*  rm 관련   */
@@ -504,13 +506,16 @@ void File::splitFile(char* sourceFile, char* first_target, char* second_target) 
 /*  paste 관련   */
 void File::pasteFile(char* firstFile, char* secondFile)
 {
-	int firstFileFd = open( findFile(firstFile) );
-	int secondFileFd = open( findFile(secondFile) );
+	int* dirInodeNo = new int;
+	int firstFileFd = open( findFile(firstFile, dirInodeNo ) );
+	int secondFileFd = open( findFile(secondFile, dirInodeNo ) );
+	delete dirInodeNo;
 
 	char* secondFileData;
 	readFile(secondFileFd, secondFileData, 0);
 
 	writeFile(firstFileFd, secondFileData);
+	
 }
 
 /*  file copy 관련   */
