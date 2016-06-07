@@ -116,8 +116,8 @@ void Display::displayInodeBlock()
 {
 	FileSystem &fs = *FileSystem::getInstance();
 	
-	InodeBlock ib1 = fs.inodeBlock[1];
-	InodeBlock ib2 = fs.inodeBlock[2];
+	InodeBlock ib1 = fs.inodeBlock[0];
+	InodeBlock ib2 = fs.inodeBlock[1];
 
 	cout << " < 사용중인 inode 수: " << fs.getAssignedInodeNum() << " >" << endl ;
 	int* inodeList = fs.getAssignedInodeIndex();
