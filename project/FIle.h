@@ -17,7 +17,7 @@ public:
 	File();
 	~File();
 
-	void createFile(Entry* filename, Directory& dir);	// dir에 filename 이름을 갖는 file 생성
+	void createFile(Entry* filename, int& dirInodeNo );	// dir에 filename 이름을 갖는 file 생성
 
 	int openFile( Entry& file );
 
@@ -33,8 +33,9 @@ public:
 	int unlinkFile(char* file);//, TableManager& tm, FileSystem& fs );
 
 							   /* 쉘 */
-	Entry* findFile( char* filename,  Directory* dir = nullptr );
-	int createAndOpen( char* filename, Entry* fileEntry, Directory& dir );
+	Entry* findFile( char* filename,  int* dirInode = 0 );
+	//int createAndOpen( char* filename, Entry* fileEntry, int* dirInodeNo = NULL );
+	int createAndOpen( char* filename, Entry* fileEntry, int& dirInodeNo );
 	int open( Entry* fileEntry );
 
 							  // chmod
