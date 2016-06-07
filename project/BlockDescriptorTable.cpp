@@ -16,7 +16,7 @@ void BlockDescriptorTable::inputBlockDescriptorTableData()
 	memcpy( inodeBitmapBlockNum, "3", inodeBitmapBlockNumLength - 1 ); 
 	memcpy( firstInodeTableBlockNum, "4", firstInodeTableBlockNumLength - 1); 
 	memcpy( unassignedBlockNum, "95", unassignedBlockNumLength - 1 ); 
-	memcpy( unassignedInodeNum, "57", unassignedInodeNumLength - 1 ); 
+	memcpy( unassignedInodeNum, "64", unassignedInodeNumLength - 1 ); 
 }
 
 void BlockDescriptorTable::initBlockDescriptorTable( char* blockPtr )

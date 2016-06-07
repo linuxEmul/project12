@@ -36,13 +36,10 @@ void FileSystem::loadFS( char* FS_File )
 		for ( int i = 0; i <= 5; i++ ) // BlockBitmap 값 초기화
 			blockBitmap[i] = '1';
 
-		
-
 		/* 디렉토리 초기화 */
 		DirectoryManager& dm = *DirectoryManager::getInstance();
 		dm.makeDefaultDirectory();
 
-		
 		for (int i = 0; i < 7; i++) // InodeBitmap 값 초기화
 			inodeBitmap[i] = '1';
 			
@@ -313,7 +310,7 @@ void FileSystem::resetDataBlock( int* indexList, int blocks )
 	}
 
 	char* num = blockDescriptorTable.getUnassignedBlockNum();
-	blockDescriptorTable.setUnassignedInodeNum( atoi(num) + blocks );
+	blockDescriptorTable.setUnassignedBlockNum( atoi(num) + blocks );
 }
 
 void FileSystem::resetInodeBlock( int inodeNum )
