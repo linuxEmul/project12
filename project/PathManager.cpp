@@ -47,6 +47,8 @@ vector<string>* PathManager::getAllAbsPath(char * direc)
 		string tmp = "/"; //root부터 시작
 		for (int j = 0; j <= i; j++)
 		{
+			if (j != 0)
+				tmp += "/";
 			tmp += (*vStr)[j];
 		}
 		path->push_back(tmp);

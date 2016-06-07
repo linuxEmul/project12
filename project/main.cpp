@@ -12,6 +12,7 @@ int main()
 	fs.saveFS("test.bin");
 	// FileSystem fs;
 	
+
 	PathManager& pm = *PathManager::getInstance();
 	PathStack ps;
 
@@ -24,6 +25,13 @@ int main()
 	cout << pm.getCurrentPath() << endl;
 
 	cout << pm.getAbsolutePath("./../../home../") << endl;
+
+	vector<string>* myArr = pm.getAllAbsPath("/home/a/b");
+
+	for (int i = 0; i < myArr->size(); i++)
+	{
+		cout << (*myArr)[i] << endl;
+	}
 
 	return 0;
 	TableManager* t = TableManager::getInstance();

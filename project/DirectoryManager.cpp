@@ -6,123 +6,141 @@
 
 void DirectoryManager::Dir_Create(char* direc)
 {
-	//Bitmap 갱신 함수를 통해 비트맵 갱신
+	try {
+		//Bitmap 갱신 함수를 통해 비트맵 갱신
+		string aaa = direc;
 
-	Inode inode;
+		Inode inode;
 
-	// inode 설정
-	//비트맵들 1로 설정 ..
+		// inode 설정
+		//비트맵들 1로 설정 ..
 
-	inode.mode = "d777";
+		inode.mode = "d777";
 
-	// int EmptyDataNum = dBlockBitmap.getEmpty();
-	// int EmptyInodeNum = inodeBitmap.getEmpty();
-
-
-	// 절대 경로 분석
-	PathManager& pm = *PathManager::getInstance();
-	vector<string> arr;
-
-	pm.doAnalyzeFolder(direc, arr);
-
-	int n = arr.size(); // n: 경로상의 폴더 개수?
-
-	string currDir = arr[n - 1]; // 현재디렉토리 이름(내가 만들 디렉토리)
-	string topDir = ""; // 상위디렉토리 이름
-
-	if (strcmp(direc, "/") == 0)
-		topDir = arr[n - 1]; // 현재디렉토리 이름(내가 만들 디렉토리)
-	else
-		topDir = arr[n - 2];
-	//addDirectory 
-
-	int currDirInode = -1;
-	int topDirInode = returnInodeNum((char*)topDir.c_str());
+		// int EmptyDataNum = dBlockBitmap.getEmpty();
+		// int EmptyInodeNum = inodeBitmap.getEmpty();
 
 
+		// 절대 경로 분석
+		PathManager& pm = *PathManager::getInstance();
+		vector<string> arr;
 
-	FileSystem& fs = *FileSystem::getInstance();
+		pm.doAnalyzeFolder(direc, arr);
+		
 
-	//memcpy(dB.data, (void *)content.c_str, sizeof(content)); 
+		int n = arr.size(); // n: 경로상의 폴더 개수?
+
+		string currDir = arr[n - 1]; // 현재디렉토리 이름(내가 만들 디렉토리)
+		string topDir = ""; // 상위디렉토리 이름
+
+		if (strcmp(direc, "/") == 0)
+			topDir = arr[n - 1]; // 현재디렉토리 이름(내가 만들 디렉토리)
+		else
+			topDir = arr[n - 2];
+		//addDirectory 
+
+		int currDirInode = -1;
+		int topDirInode = -1;
+		
+		if(aaa == "/")
+			topDirInode = returnInodeNum((char*)topDir.c_str());
+		else
+			topDirInode = returnInodeNum(stringToCharArr((*pm.getAllAbsPath(direc))[n - 2]));
 
 
-	Directory curDr;
-	Directory topDr;
+		FileSystem& fs = *FileSystem::getInstance();
 
-	char time[13];
-	getCurrentTime(time);
-
-	char linkCount[2] = "2";
-
-	//Inode 정보 설정
-	inode.blocks = "0";
-	inode.linksCount = linkCount;
-	inode.mtime = time;
-	inode.size = "0";
-	inode.time = time;
-	inode.ctime = time;
+		//memcpy(dB.data, (void *)content.c_str, sizeof(content)); 
 
 
-	currDirInode = fs.writeFS_Dir(inode);
+		Directory curDr;
+		Directory topDr;
 
-	if (strcmp(direc, "/") != 0 && topDr.isExist((char*)currDir.c_str()) == true)
-	{
-		cout << "dir exist" << endl;
-		return;
-	}//디렉토리 중복 검사
+		char time[13];
+		getCurrentTime(time);
 
-	curDr.setInodeNum(currDirInode, topDirInode);
+		char linkCount[2] = "2";
 
-	if (strcmp(direc, "/") != 0)
-	{
-		topDr = *returnDir(topDirInode);
-		Entry e;
+		//Inode 정보 설정
+		inode.blocks = "0";
+		inode.linksCount = linkCount;
+		inode.mtime = time;
+		inode.size = "0";
+		inode.time = time;
+		inode.ctime = time;
 
-		e.inodeNum = currDirInode;
-		strcpy(e.name, currDir.c_str());
-		topDr.addDirectory(e, topDirInode);
+
+		currDirInode = fs.writeFS_Dir(inode);
+
+		if (strcmp(direc, "/") != 0 && topDr.isExist((char*)currDir.c_str()) == true)
+		{
+			cout << "dir exist" << endl;
+			return;
+		}//디렉토리 중복 검사
+
+		curDr.setInodeNum(currDirInode, topDirInode);
+
+		if (strcmp(direc, "/") != 0)
+		{
+			topDr = *returnDir(topDirInode);
+			Entry e;
+
+			e.inodeNum = currDirInode;
+			strcpy(e.name, currDir.c_str());
+			topDr.addDirectory(e, topDirInode);
+		}
+		Entry *enList = curDr.entryList;
+
+		string content = ".,";
+
+		//cout << enList[0].inodeNum << endl;
+		content.append(to_string(enList[0].inodeNum));
+		content.append(";..," + to_string(enList[1].inodeNum));
+		content.append(";");
+		//데이터블록에 데이터 추가(idx는 datablock Index)
+		int idx = fs.writeFS((char*)content.c_str());
+		char dataBlockList[] = "   \0";
+		itoa(idx, dataBlockList);
+
+		char size[2] = { '0' + content.length() + 1, };
+		//char dataBlockList = number;
+
+		//Inode 정보 설정
+		inode.blocks = "1";
+		inode.linksCount = linkCount;
+		inode.mtime = time;
+		inode.size = size;
+		inode.time = time;
+		inode.dataBlockList = dataBlockList;
+
+		//데이터 블록 추가 후 업데이트
+		fs.updateInode_writeFile(currDirInode, inode);
 	}
-	Entry *enList = curDr.entryList;
-
-	string content = ".,";
-
-	//cout << enList[0].inodeNum << endl;
-	content.append(to_string(enList[0].inodeNum));
-	content.append(";..," + to_string(enList[1].inodeNum));
-	content.append(";");
-	//데이터블록에 데이터 추가(idx는 datablock Index)
-	int idx = fs.writeFS((char*)content.c_str());
-	char dataBlockList[] = "   \0";
-	itoa(idx, dataBlockList);
-
-	char size[2] = { '0' + content.length() + 1, };
-	//char dataBlockList = number;
-
-	//Inode 정보 설정
-	inode.blocks = "1";
-	inode.linksCount = linkCount;
-	inode.mtime = time;
-	inode.size = size;
-	inode.time = time;
-	inode.dataBlockList = dataBlockList;
-
-	//데이터 블록 추가 후 업데이트
-	fs.updateInode_writeFile(currDirInode, inode);
+	catch (char* msg)
+	{
+		cerr << "error : " << msg << endl;
+	}
 }
 
 Directory DirectoryManager::Dir_Read(char* direc)
 {
-	FileSystem& fs = *FileSystem::getInstance();
-	int accessNum = returnInodeNum(direc);
-	InodeBlock inode = ((accessNum > 31) ? fs.inodeBlock[1] : fs.inodeBlock[0]);
-	char* mode = inode.getMode(accessNum);
-	if (strchr(mode, 'f'))
-		throw "파일을 입력했습니다.";
-	else {
-		Directory dir = *returnDir(accessNum);
-		//openedDirList.push_back(dir);
-		//openedDirList.erase(openedDirList.begin+5);
-		return dir;
+	try {
+		FileSystem& fs = *FileSystem::getInstance();
+		int accessNum = returnInodeNum(direc);
+		InodeBlock inode = ((accessNum > 31) ? fs.inodeBlock[1] : fs.inodeBlock[0]);
+		char* mode = inode.getMode(accessNum);
+		if (strchr(mode, 'f'))
+			throw "파일을 입력했습니다.";
+		else {
+			Directory dir = *returnDir(accessNum);
+			//openedDirList.push_back(dir);
+			//openedDirList.erase(openedDirList.begin+5);
+			return dir;
+		}
+	}
+	catch (char* msg)
+	{
+		cerr << "error : " << msg << endl;
 	}
 }
 
@@ -233,6 +251,10 @@ int DirectoryManager::returnInodeNum(char * direc)
 			}
 
 		}
+	}
+	if (inodeNum == "") {
+		cout << "넘어온 경로 : " << direc << ", ";
+		throw "inodeNumber를 구할 수 없습니다.";
 	}
 	return stoi(inodeNum);
 
