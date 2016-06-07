@@ -58,4 +58,26 @@ public:
 	void makeDefaultDirectory();
 
 	bool isReallyExist(char* path);
+
+	void changeDirMode(char* path, char* mode) 
+	{
+		FileSystem& fs = *FileSystem::getInstance();
+		TableManager& tm = *TableManager::getInstance();
+
+		DirectoryManager& dm = *DirectoryManager::getInstance();
+
+		// 디렉토리 이름으로 파일 디스크립터에서 디렉토리 인덱스 받아오기 
+		int dI =  dm.returnInodeNum(path);
+
+		Inode dInodeData = fs.inodeBlock->getInodeData(dI);
+
+		dInodeData.mode = new char[5];
+
+		for (int i = 0; i < 5; i++)
+			dInodeData.mode[i] = mode[i];
+
+		if(tm.isExistInInodeTable(dI))
+			tm.updateInode(dI, dInodeData);
+		fs.updateInode_writeFile(dI, dInodeData);
+	}
 };

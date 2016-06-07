@@ -6,7 +6,10 @@ const char* user_msg = "J4\0";
 void Shell::run()
 {
 	PathManager& pm = *PathManager::getInstance();
+	DirectoryManager& dm = *DirectoryManager::getInstance();
 	login();
+
+
 	while (true)
 	{
 		char* path = pm.getCurrentPath();
@@ -146,8 +149,14 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 	case _rm:
 		if (param.size() == 2)
 		{
-			char* filename = (char*)param[1].c_str();
-			char kinds = isFile(filename);
+			string path = param[1];
+			DirectoryManager& dirm = *DirectoryManager::getInstance();
+			PathManager& pm = *PathManager::getInstance();
+			char* filename = stringToCharArr(pm.doAnalyzeFolder(stringToCharArr(path))[pm.doAnalyzeFolder(stringToCharArr(path)).size()-1]);
+	
+			vector<string> vAllAbs = *pm.getAllAbsPath(stringToCharArr(path));
+			Directory d = dirm.Dir_Read(stringToCharArr(vAllAbs[vAllAbs.size()-2]));
+			char kinds = isFile(filename, d);
 			if (kinds = 'f')
 			{
 				caseOfRemoveFile(filename);
@@ -171,8 +180,13 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 	case _chmod:
 		if (param.size() == 3)
 		{
+			PathManager& pm = *PathManager::getInstance();
+
+			string path = param[2];
+			if(pm.isRelativePath(stringToCharArr(param[2])))
+				path = pm.getAbsolutePath(stringToCharArr(param[2]));
 			int mode = stoi(param[1]);
-			caseOfChmod((char*)param[2].c_str(), mode);
+			caseOfChmod(stringToCharArr(path), mode);
 		} // chmod 222 a
 		else cout << "error" << endl;
 		break;
@@ -297,9 +311,16 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 	case _close:
 		if (param.size() == 2)
 		{
+			string path = param[1];
+			DirectoryManager& dirm = *DirectoryManager::getInstance();
+			PathManager& pm = *PathManager::getInstance();
+			char* filename = stringToCharArr(pm.doAnalyzeFolder(stringToCharArr(path))[pm.doAnalyzeFolder(stringToCharArr(path)).size()-1]);
+	
+			vector<string> vAllAbs = *pm.getAllAbsPath(stringToCharArr(path));
+			Directory d = dirm.Dir_Read(stringToCharArr(vAllAbs[vAllAbs.size()-2]));
+
 			int fd = stoi(param[1]);
-			char* filename = (char*)param[1].c_str();
-			char kinds = isFile(filename);
+			char kinds = isFile(filename, d);
 			if (kinds = 'f')
 			{
 				File file;
@@ -380,7 +401,12 @@ void Shell::analyzeCmd(const char * str)
 void Shell::caseOfdisplayCat(char* filename)
 {
 	File file;
-	int fd = file.open( file.findFile(filename) );
+	 int* dirInodeNo = new int;
+   int fd = file.open( file.findFile(filename, dirInodeNo) );
+   if ( fd == 0 )
+      return;
+
+   delete dirInodeNo;
 
 	char enter = 13;
 	string sEnter = enter + "";
@@ -419,33 +445,53 @@ void Shell::caseOfjoinCat(char* filename, string userInputData)
 	file.joinCat(filename, (char*)userInputData.c_str());
 }
 
-void Shell::caseOfChmod(char* filename, int mode)
+void Shell::caseOfChmod(char* path, int mode)
 {
-	File file;
-	char c_mode[5];
-	c_mode[0] = 'f';
-	itoa(mode, &c_mode[1], 10);
-	c_mode[4] = '\0';
-	file.changeFileMode(filename, c_mode);
+	DirectoryManager& dirm = *DirectoryManager::getInstance();
+	PathManager& pm = *PathManager::getInstance();
+	char* filename = stringToCharArr(pm.doAnalyzeFolder(path)[pm.doAnalyzeFolder(path).size()-1]);
+	
+	vector<string> vAllAbs = *pm.getAllAbsPath(path);
+	Directory d = dirm.Dir_Read(stringToCharArr(vAllAbs[vAllAbs.size()-2]));
+
+	cout << filename << endl;
+	if ( isFile(filename, d) == 'f' )
+	{
+		File file;
+		char c_mode[5];
+		c_mode[0] = 'f';
+		itoa(mode, &c_mode[1], 10);
+		c_mode[4] = '\0';
+		file.changeFileMode(filename, c_mode);
+	}
+	else
+	{		
+		char c_mode[5];
+		c_mode[0] = 'd';
+		itoa(mode, &c_mode[1], 10);
+		c_mode[4] = '\0';
+		dirm.changeDirMode(stringToCharArr(vAllAbs[vAllAbs.size()-1]), c_mode);
+	}
+
 }
 
-char Shell::isFile(char * filename)
+
+char Shell::isFile(char * filename, Directory currentDir)
 {
-	DirectoryManager* d = DirectoryManager::getInstance();
-	DirectoryManager& dm = *d;
-
-	TableManager* t = TableManager::getInstance();
-	TableManager& tm = *t;
-
-	Directory currentDir = dm.getRecentlyOpenedDir();
+	if(strcmp(filename, "/") == 0)
+	{
+		return 'd';
+	}
+	DirectoryManager& dm = *DirectoryManager::getInstance();
 
 	Entry* fileEntry = currentDir.findName(filename);
-	tm.isExistInInodeTable(fileEntry->inodeNum);
+	if(fileEntry == NULL){
+		throw "파일이 존재하지 않습니다.";
+	}
 
 	Directory* dir = dm.returnDir(fileEntry->inodeNum);
 	if (dir == NULL)
 		return 'f';
-
 	return 'd';
 }
 

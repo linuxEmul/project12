@@ -34,9 +34,9 @@ public:
 	void caseOfoverwriteCat( char* filename, string userInputData );
 	void caseOfjoinCat( char* filename, string userInputData );
 
-	void caseOfChmod( char* filename, int mode );
+	void caseOfChmod( char* path, int mode );
 
-	char isFile( char * filename );
+	char isFile( char * filename, Directory currentDir );
 	void caseOfRemoveFile( char * filename );
 
 	void caseOfSplitFile( char* filename );
