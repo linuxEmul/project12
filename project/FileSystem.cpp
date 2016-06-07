@@ -422,3 +422,4 @@ void FileSystem::togleInodeBitmap( int inodeNum )
 		inodeBitmap[ inodeNum ] = '0';
 }
 FileSystem* FileSystem::instance = NULL;
+bool FileSystem::allowDelete = false;

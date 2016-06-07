@@ -13,7 +13,7 @@ private:
 	
 	FileSystem(void);
 public:
-	
+	static bool allowDelete;
 	static FileSystem* getInstance() {
 		if (!instance) {
 			instance = new FileSystem();
