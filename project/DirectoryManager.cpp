@@ -231,10 +231,15 @@ int DirectoryManager::returnInodeNum(char * direc)
 		//cout << "넘어온 경로 : " << direc << ", ";
 		throw "inodeNumber를 구할 수 없습니다.";
 	}
+	string newInodeNum = "";
+	if (arr.size()-1 < 2)
+		newInodeNum = inodeNum;
 	for (int i = 1; i < arr.size() - 1; i++)
 	{
-		inodeData = ((stoi(inodeNum) < 32) ? fs.inodeBlock[0].getInodeData(stoi(inodeNum)) : fs.inodeBlock[1].getInodeData(stoi(inodeNum)));
-
+		if(i == 1)
+			inodeData = ((stoi(inodeNum) < 32) ? fs.inodeBlock[0].getInodeData(stoi(inodeNum)) : fs.inodeBlock[1].getInodeData(stoi(inodeNum)));
+		else
+			inodeData = ((stoi(newInodeNum) < 32) ? fs.inodeBlock[0].getInodeData(stoi(newInodeNum)) : fs.inodeBlock[1].getInodeData(stoi(newInodeNum)));
 		str = "";
 
 		idx = new int[atoi(inodeData.blocks)];
@@ -251,17 +256,18 @@ int DirectoryManager::returnInodeNum(char * direc)
 
 			if (tmp[0] == arr[i+1])
 			{
-				inodeNum = tmp[1];
+				newInodeNum = tmp[1];
 				break;
 			}
-
+			if (j == entry.size() - 1)
+				newInodeNum = "";
 		}
 	}
-	if (inodeNum == "") {
+	if (newInodeNum == "") {
 		//cout << "넘어온 경로 : " << direc << ", ";
 		throw "inodeNumber를 구할 수 없습니다.";
 	}
-	return stoi(inodeNum);
+	return stoi(newInodeNum);
 
 }
 
@@ -379,6 +385,7 @@ bool DirectoryManager::isReallyExist(char * path)
 {
 	try {
 		int i = returnInodeNum(path);
+		cout << "i : " << i << endl;
 		return true;
 	}
 	catch (char* msg) {

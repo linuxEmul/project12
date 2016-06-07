@@ -53,7 +53,7 @@ char* getCurrentTime()
 
 	string str = to_string(t.tm_year + 1900);
 	if (t.tm_mon < 10)
-		str += "0" + to_string(t.tm_mon);
+		str += "0" + to_string(t.tm_mon+1);
 	else str += to_string(t.tm_mon);
 
 	if (t.tm_mday < 10)
@@ -87,7 +87,7 @@ void getCurrentTime(char* currTime)
 
 	string str = to_string(t.tm_year + 1900);
 	if (t.tm_mon < 10)
-		str += "0" + to_string(t.tm_mon);
+		str += "0" + to_string(t.tm_mon+1);
 	else str += to_string(t.tm_mon);
 
 	if (t.tm_mday < 10)

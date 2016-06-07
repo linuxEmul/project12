@@ -47,23 +47,22 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 		} //일반 ls
 		else if (param.size() == 2)
 		{
+			//경로 변환
+			string path = param[1];
+			if (pm.isRelativePath(stringToCharArr(path)))
+				path = pm.getAbsolutePath(stringToCharArr(path));
+
 			//해당 경로가 존재하는 지 확인
-			vector<string>& allPath = *pm.getAllAbsPath(stringToCharArr(param[1]));
+			vector<string>& allPath = *pm.getAllAbsPath(stringToCharArr(path));
 			if (!dm.isReallyExist(stringToCharArr(allPath[allPath.size() - 1])))
 			{
 				display("해당 경로가 존재하지 않습니다.");
+				display((char*)path.c_str());
 				return;
 			}
 
 			//처리
-			Directory d;
-			char* t = pm.getAbsolutePath(stringToCharArr(param[1]));
-			//cout << pm.getAbsolutePath(stringToCharArr(param[1])) << endl;
-
-			if (pm.isRelativePath(stringToCharArr(param[1])) == true)
-				d = dm.Dir_Read(pm.getAbsolutePath(stringToCharArr(param[1])));
-			else if (pm.isRelativePath(stringToCharArr(param[1])) == false)
-				d = dm.Dir_Read(stringToCharArr(param[1]));
+			Directory d = dm.Dir_Read(stringToCharArr(path));
 			for (int i = 0; i < d.entryCnt; i++)
 			{
 				Inode inodeData = fs.inodeBlock->getInodeData(d.entryList[i].inodeNum);
@@ -88,13 +87,13 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 
 			//경로 존재 확인
 			vector<string>& allPath = *pm.getAllAbsPath(stringToCharArr(path));
+			if (allPath.size() > 1 && !dm.isReallyExist(stringToCharArr(allPath[allPath.size() - 2]))) {
+				display("해당 경로가 존재하지 않습니다.");
+				return;
+			}
 			if (dm.isReallyExist(stringToCharArr(allPath[allPath.size() - 1])))
 			{
 				display("해당 경로가 이미 존재합니다.");
-				return;
-			}
-			if (!dm.isReallyExist(stringToCharArr(allPath[allPath.size() - 2]))) {
-				display("해당 경로가 존재하지 않습니다.");
 				return;
 			}
 			
@@ -106,18 +105,19 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 	case _rmdir:
 		if (param.size() == 2)
 		{
+			//경로 변환
+			string path = param[1];
+			if (pm.isRelativePath(stringToCharArr(path)))
+				path = pm.getAbsolutePath(stringToCharArr(path));
+
 			//경로 존재 확인
-			vector<string>& allPath = *pm.getAllAbsPath(stringToCharArr(param[1]));
+			vector<string>& allPath = *pm.getAllAbsPath(stringToCharArr(path));
 			if (dm.isReallyExist(stringToCharArr(allPath[allPath.size() - 1])))
 			{
 				display("해당 경로가 이미 존재합니다.");
 				return;
 			}
-
-			if (pm.isRelativePath(stringToCharArr(param[1])) == true)
-				dm.Dir_Unlink(pm.getAbsolutePath(stringToCharArr(param[1])));
-			else if (pm.isRelativePath(stringToCharArr(param[1])) == false)
-				dm.Dir_Unlink(stringToCharArr(param[1]));
+			dm.Dir_Unlink(stringToCharArr(path));
 
 		}
 		else cout << "error" << endl;
