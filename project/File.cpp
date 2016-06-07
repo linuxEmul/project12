@@ -6,7 +6,7 @@ File::File() { }
 File::~File() { }
 
 
-void File::createFile(char* filename, Directory& dir)//, DirectoryManager& dm )
+void File::createFile(Entry* fileEntry, Directory& dir)//, DirectoryManager& dm )
 {
 	FileSystem& fs = *FileSystem::getInstance();
 
@@ -40,15 +40,13 @@ void File::createFile(char* filename, Directory& dir)//, DirectoryManager& dm )
 	inode를 writeFS를 통해 FS로 보내서 파일 생성 정보들을 FS에 저장해주고,  inodeNo를 받아온다.
 	*/
 
-	Entry fileEntry;
-	strcpy( fileEntry.name,  filename );
-	fileEntry.inodeNum = inodeNo;
+	fileEntry->inodeNum = inodeNo;
 	
 	// directory.addDir( inodeNo, filename ); // 파일명과 파일InodeNo를 디렉토리에 보냄
-	dir.addDirectory(fileEntry, inodeNo);
+	dir.addDirectory( *fileEntry, inodeNo);
 }   // createFile
 
-int File::openFile( Entry file )//, FileSystem& fs )
+int File::openFile( Entry& file )//, FileSystem& fs )
 {
 	FileSystem& fs = *FileSystem::getInstance();
 	TableManager& tm = *TableManager::getInstance();
@@ -128,7 +126,7 @@ void File::writeFile(int fd, char* buffer)//,  TableManager& tm, FileSystem& fs 
 	TableManager& tm = *TableManager::getInstance();
 
 	// (FT)   fd를 타고가서 inode에서 data block idx받아오기
-	InodeElement* inodeE = ((InodeElement*)tm.getElement(INODET, fd));
+	InodeElement* inodeE = ((InodeElement*)tm.getElement(INODET, tm.getInodeNumByFD( fd ) ) );
 	Inode inode = inodeE->inode;
 	int blocks = atoi(inode.blocks);
 	int* dataIdx = new int[blocks];
@@ -213,14 +211,11 @@ void File::writeFile(int fd, char* buffer)//,  TableManager& tm, FileSystem& fs 
 // 기존에 있던 파일데이터를 buffer로 덮어 씌움
 void File::writeFile(int fd, char* buffer, int size)//,  TableManager& tm, FileSystem& fs )
 {
-	TableManager* t = TableManager::getInstance();
-	TableManager& tm = *t;
-
-	FileSystem* f = FileSystem::getInstance();
-	FileSystem& fs = *f;
+	TableManager& tm = *TableManager::getInstance();
+	FileSystem& fs = *FileSystem::getInstance();
 
 	// (FT)   fd를 타고가서 inode에서 data block idx받아오기
-	InodeElement* inodeE = ((InodeElement*)tm.getElement(INODET, fd));
+	InodeElement* inodeE = tm.getInodeByFD( fd );
 	Inode inode = inodeE->inode;
 	int blocks = atoi(inode.blocks);
 	int* dataIdx = new int[blocks];
@@ -261,7 +256,6 @@ void File::writeFile(int fd, char* buffer, int size)//,  TableManager& tm, FileS
 		}
 
 		int returnIdx = fs.writeFS( blockData );
-		delete blockData;
 		
 		translateIntArrToCharArr(&returnIdx, inode.dataBlockList + new_Blocks, 1); // inode에 할당받은 데이터블럭 인덱스 저장
 
@@ -271,7 +265,7 @@ void File::writeFile(int fd, char* buffer, int size)//,  TableManager& tm, FileS
 	translateIntArrToCharArr(&new_Blocks, inode.blocks, 1);	// blocks( 할당받은 데이터블럭 수 ) 저장 
 
 	/* (FS)   Inode Block 의 size, time(파일 마지막 접근시간), mtime(파일이 마지막으로 수정된 시간) blocks, block[] 갱신 -> FT, FS 모두 갱신 */
-	char* currTime;
+	char currTime[13] = { 0 };
 	getCurrentTime(currTime);
 	inode.time = currTime;
 	inode.mtime = currTime;
@@ -350,14 +344,17 @@ Entry* File::findFile( char* filename,  Directory* dir ) // 상대경로 혹은 절대경
 	DirectoryManager& dm = *DirectoryManager::getInstance();
 
 	char* absPath = pm.getAbsolutePath( filename );
-	vector<string>* pathFiles = pm.getAllAbsPath( absPath );
+	vector<string>& pathFiles = *pm.getAllAbsPath( absPath );
 
 	Entry* fileEntry;
 	
-	int count = pathFiles->size();
-
+	//int count = pathFiles.size();
+	vector<string>::size_type count = pathFiles.size();
 	// 타겟파일 제외한 절대경로를 통해 디렉토리를 찾아 아이노드 번호를 받음
-	int dirInodeNo = dm.returnInodeNum( (char*)*pathFiles->at( count -2 ).c_str() );
+	for ( vector<string>::size_type i = 0 ; i < count ; i++ )
+		cout << pathFiles[count-2] << endl;
+
+	int dirInodeNo = dm.returnInodeNum( (char*) pathFiles.at( count -2 ).c_str() );
 	// 디렉토리의 아이노드 번호를 통해 디렉토리를 받아옴
 	dir = dm.returnDir( dirInodeNo );
 
@@ -365,31 +362,25 @@ Entry* File::findFile( char* filename,  Directory* dir ) // 상대경로 혹은 절대경
 
 	fileEntry = dir->findName( filename ); // 디렉토리에서 파일엔트리를 찾음
 
-	if (fileEntry == nullptr)	// 디렉토리에 파일엔트리가 없는 경우, 파일을 생성해 준다
-	{
-		vector<string> files = pm.doAnalyzeFolder( absPath );
-		string filename = files[ files.size() - 1];
-
-		createFile( (char*)filename.c_str() , *dir );
-	}
-
-	return fileEntry;
+	return fileEntry; // 못찾은 경우 nullptr
 }
 
 //file entry가 nullptr이면 파일을 생성해줘야하는 명령어 : cat, 
-int File::createAndOpen( Entry* fileEntry, Directory& dir )
+int File::createAndOpen( char* filename, Entry* fileEntry, Directory& dir )
 {
 	PathManager& pm = *PathManager::getInstance();
-	char* absPath = pm.getAbsolutePath( fileEntry->name );
+	char* absPath = pm.getAbsolutePath( filename );
 
 	if (fileEntry == nullptr)	// 디렉토리에 파일엔트리가 없는 경우, 파일을 생성해 준다
 	{
-		vector<string> files = pm.doAnalyzeFolder( absPath );
-		string filename = files[ files.size() - 1];
-
-		createFile( (char*)filename.c_str() , dir );
+		int nameLen = strlen(filename);
+		fileEntry = new Entry;
+		memcpy( fileEntry->name, filename,  nameLen );
+		fileEntry->name[nameLen] = '\0';
+		createFile( fileEntry , dir );
 	}
 
+	cout << "Entry 정보 테스트 / " << fileEntry->inodeNum << " " << fileEntry->name << endl;
 	return openFile( *fileEntry );
 }
 
@@ -405,6 +396,7 @@ int File::open( Entry* fileEntry )
 		return fd;
 	}
 	
+	cout << "open return " << endl;
 	return openFile( *fileEntry );
 }
 
@@ -434,7 +426,7 @@ void File::changeFileMode(char* file, char* mode) // file 은filename
 void File::overwriteCat(char* file, string data) // file은 filename만 pathX
 {
 	Directory dir;
-	int fd = createAndOpen( findFile(file, &dir), dir  );
+	int fd = createAndOpen( file, findFile(file, &dir), dir  );
 
 	writeFile(fd, (char*)data.c_str(), data.length());
 }
@@ -443,7 +435,7 @@ void File::overwriteCat(char* file, string data) // file은 filename만 pathX
 void File::joinCat(char* file, char* data) // file 은 filename
 {
 	Directory dir;
-	int fd = createAndOpen( findFile(file, &dir), dir  );
+	int fd = createAndOpen( file, findFile(file, &dir), dir  );
 
 	writeFile(fd, data);
 }
@@ -498,13 +490,13 @@ void File::splitFile(char* sourceFile, char* first_target, char* second_target) 
 
 	// first_target파일에 반만큼 저장
 	Directory dir;
-	int firstTargetFd = createAndOpen( findFile( first_target, &dir ), dir );
+	int firstTargetFd = createAndOpen( first_target, findFile( first_target, &dir ), dir );
 	char* firstFileData;
 	readFile(fd, firstFileData, halfSize);
 	writeFile(firstTargetFd, firstFileData, halfSize);
 
 	// second_target에 나머지 반 저장
-	int secondTargetFd = createAndOpen( findFile(second_target, &dir), dir );
+	int secondTargetFd = createAndOpen( second_target, findFile(second_target, &dir), dir );
 	char* secondFileData;
 	readFile(fd, secondFileData, halfSize);
 	writeFile(secondTargetFd, secondFileData, halfSize);
@@ -545,7 +537,7 @@ void File::copyFile(char* sourceFile, char* targetFile)
 {
 	string data = readSystemFile(sourceFile);//   System file read 
 	Directory dir;
-	int fd = createAndOpen( findFile(targetFile, &dir), dir );//-> filename으로 file create해줄 것 //-> file open할것 
+	int fd = createAndOpen(targetFile, findFile(targetFile, &dir), dir );//-> filename으로 file create해줄 것 //-> file open할것 
 	writeFile(fd, (char*)data.c_str(), data.length());//-> filewrite 해줄 것
 }
 

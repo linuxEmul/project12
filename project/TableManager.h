@@ -101,6 +101,8 @@ public:
 	//fd를 통해 inode number를 return 해주는 함수
 	int getInodeNumByFD(int fd);
 
+	InodeElement* getInodeByFD(int fd);
+
 	//FileOpen에 대응하는 함수
 	int fileOpenEvent(int inodeNumber, Inode inodeBlock);
 

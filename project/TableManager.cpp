@@ -267,6 +267,15 @@ int TableManager::getInodeNumByFD(int fd)
 	return myinode->inode_number;
 }
 
+InodeElement* TableManager::getInodeByFD(int fd)
+{
+	int* sftIndex = (int*)getElement(FDT, fd);
+	SFTElement* myelement = (SFTElement*)getElement(SFT, *sftIndex);
+	int* inodeIndex = &myelement->inodeTableIdx;
+	InodeElement* myinode = (InodeElement*)getElement(INODET, *inodeIndex);
+	return myinode;
+}
+
 int TableManager::getIndex(TableType type)
 {
 	if (type == FDT) {
