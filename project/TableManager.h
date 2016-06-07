@@ -118,5 +118,6 @@ public:
 	//count ¹ÝÈ¯
 	int getCount(TableType type);
 	
-	void getTableInfo(TableType type, int* idxList, void* result);
+	int* getTableInfo(TableType type, void* result);
+	
 };

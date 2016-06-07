@@ -338,6 +338,7 @@ void DirectoryManager::openAllDir(char * path)
 	PathManager& pm = *PathManager::getInstance();
 
 	vector<string> vStr = *pm.getAllAbsPath(path);
+	vector<string> vAllDirec = pm.doAnalyzeFolder(path);
 
 
 	Directory dir = *returnDir(0); // root의 dir 객체 가져오기
@@ -347,7 +348,7 @@ void DirectoryManager::openAllDir(char * path)
 	for (int i = 1; i < vStr.size(); i++)
 	{
 		// 상위 디렉토리를 통해 먼저 inodeNum과 Block을 얻는다.
-		int inodeNum = dir.findName(stringToCharArr(vStr[i]))->inodeNum;
+		int inodeNum = dir.findName(stringToCharArr(vAllDirec[i]))->inodeNum;
 		Inode inodeBl = fs.inodeBlock->getInodeData(inodeNum);
 		dir = Dir_Read(stringToCharArr(vStr[i]));
 

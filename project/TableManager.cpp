@@ -357,11 +357,11 @@ int TableManager::getCount(TableType type)
 	return count;
 }
 
-void TableManager::getTableInfo(TableType type, int* indexList, void* result)
+int* TableManager::getTableInfo(TableType type, void* result)
 {
 	int cnt = 0;
 	string tmp = "";
-
+	int* indexList = NULL;
 	switch (type)
 	{
 	case FDT:
@@ -369,14 +369,14 @@ void TableManager::getTableInfo(TableType type, int* indexList, void* result)
 		for (int i = 3; i <= fdtLastIndex; i++) {
 			if (fileDescriptorTable[i] != -1) {
 				indexList[cnt++] = i;
-				tmp = '0'+fileDescriptorTable[i];
+				tmp = to_string(fileDescriptorTable[i]);
 				(*reinterpret_cast<vector<string>*>(result)).push_back(tmp);
 			}
 		}
 		break;
 	case SFT:
 		indexList = new int[getCount(SFT)];
-		result = new vector<SFTElement>;
+		//result = new vector<SFTElement>;
 		for (int i = 0; i <= sftLastIndex; i++) {
 			if (systemFileTable[i].inodeTableIdx != -1) {
 				indexList[cnt++] = i;
@@ -386,7 +386,7 @@ void TableManager::getTableInfo(TableType type, int* indexList, void* result)
 		break;
 	case INODET:
 		indexList = new int[getCount(INODET)];
-		result = new vector<InodeElement>;
+		//result = new vector<InodeElement>;
 		for (int i = 0; i <= fdtLastIndex; i++) {
 			if (fileDescriptorTable[i] != -1) {
 				indexList[cnt++] = i;
@@ -395,6 +395,7 @@ void TableManager::getTableInfo(TableType type, int* indexList, void* result)
 		}
 		break;
 	}
+	return indexList;
 }
 
 int TableManager::fileOpenEvent(int inodeNumber, Inode inodeBlock) {

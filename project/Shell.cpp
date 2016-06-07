@@ -256,6 +256,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 			// cd .. 상위 디렉토리로 이동
 			// cd ../a 상대경로
 
+			dm.closeAllDir();
 			if (pm.isRelativePath(stringToCharArr(param[1])) == true)  //상대경로 일 때
 			{
 				pm.setAbsPathInPathStack(pm.getAbsolutePath(stringToCharArr(param[1])));
@@ -264,6 +265,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 			{
 				pm.setAbsPathInPathStack(stringToCharArr(param[1]));
 			}
+			dm.openAllDir(pm.getCurrentPath());
 		}
 		else cout << "error" << endl;
 		break;
@@ -508,7 +510,7 @@ void Shell::login()
 	ps.push("home");
 	pm.setPathStack(ps);
 
-	//dm.openAllDir(pm.getCurrentPath());
+	dm.openAllDir(pm.getCurrentPath());
 	cout << endl;
 	cout << "-----------------login success--------------" << endl;
 

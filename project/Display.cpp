@@ -21,13 +21,12 @@ void Display::displayFileDiscriptorTable()
 		return;
 	}
 
-	int* idxList = NULL;
-	vector<string> sftIndex ;
-	tb.getTableInfo(FDT, idxList, &sftIndex);
+	vector<string> fdtIndex ;
+	int* idxList = tb.getTableInfo(FDT, &fdtIndex);
 
 	for ( int i = 0; i < tb.getCount(FDT)-3; i++ )
 	{
-		cout << idxList[i] << "		" << sftIndex[i] << endl;
+		cout << idxList[i] << "		" << fdtIndex[i] << endl;
 	} //  File Descriptor Table 출력
 
 }
@@ -37,18 +36,22 @@ void Display::displaySystemFileTable()
 	TableManager tb = *TableManager::getInstance();
 	cout << "<< System File Table >> " << endl ;
 
-	int* idxList = NULL;
+
 	vector<SFTElement> sft;
 	if (tb.getCount(SFT) == 0) {
 		cout << "정보가 없습니다." << endl;
 		return;
 	}
 	cout << tb.getCount(SFT) << endl;
-	tb.getTableInfo(SFT, idxList, &sft);
+	int* idxList = tb.getTableInfo(SFT, &sft);
 	cout << "Index			Inode Index			File Pointer" << endl ;
 
 	
-
+	if (sft.size() != tb.getCount(SFT))
+	{
+		cout << "Error...! 뭔가 잘못됐음" << endl;
+		return;
+	}
 	for ( int i = 0; i < tb.getCount(SFT); i ++ )
 	{
 		cout << idxList[i] << "		" << sft[i].inodeTableIdx << "		" << sft[i].file_pointer << endl;
@@ -65,9 +68,9 @@ void Display::displayInodeTable()
 		return;
 	}
 	cout << "Index			Inode Number" << endl ;
-	int* idxList = NULL;
+
 	vector<InodeElement> inodeE;
-	tb.getTableInfo(INODET, idxList, &inodeE);
+	int* idxList = tb.getTableInfo(INODET, &inodeE);
 
 	for ( int i = 0; i < tb.getCount(INODET); i ++ )
 	{
