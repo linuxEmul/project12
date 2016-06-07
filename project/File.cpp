@@ -366,6 +366,8 @@ int File::createAndOpen( char* filename, Entry* fileEntry, int& dirInodeNo )
 {
 	PathManager& pm = *PathManager::getInstance();
 	char* absPath = pm.getAbsolutePath( filename );
+	vector<string> filenames = pm.doAnalyzeFolder( filename );
+	filename = (char*)filenames[ filenames.size() -1 ].c_str();
 
 	if (fileEntry == nullptr)	// 디렉토리에 파일엔트리가 없는 경우, 파일을 생성해 준다
 	{
@@ -376,7 +378,6 @@ int File::createAndOpen( char* filename, Entry* fileEntry, int& dirInodeNo )
 		createFile( fileEntry, dirInodeNo );
 	}
 
-	cout << "Entry 정보 테스트 / " << fileEntry->inodeNum << " " << fileEntry->name << endl;
 	return openFile( *fileEntry );
 }
 
