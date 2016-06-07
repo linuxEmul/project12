@@ -115,9 +115,9 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 
 			//경로 존재 확인
 			vector<string>& allPath = *pm.getAllAbsPath(stringToCharArr(path));
-			if (dm.isReallyExist(stringToCharArr(allPath[allPath.size() - 1])))
+			if (!dm.isReallyExist(stringToCharArr(allPath[allPath.size() - 1])))
 			{
-				display("해당 경로가 이미 존재합니다.");
+				display("해당 경로가 존재하지 않습니다.");
 				return;
 			}
 			dm.Dir_Unlink(stringToCharArr(path));

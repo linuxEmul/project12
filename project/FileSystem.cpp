@@ -136,6 +136,8 @@ int FileSystem::writeFS( Inode inode )
 	blockDescriptorTable.setUnassignedBlockNum( atoi( blockDescriptorTable.getUnassignedBlockNum() ) - 1 ); // unassignedBlockNum - 1 
 	blockDescriptorTable.setUnassignedInodeNum( atoi( blockDescriptorTable.getUnassignedInodeNum() ) - 1 ); // unassignedInodeNum - 1
 
+	delete[] buffer;
+
 	return inodeNum;
 }
 
@@ -189,6 +191,8 @@ int FileSystem::writeFS_Dir(Inode inode)
 	blockDescriptorTable.setUnassignedBlockNum(atoi(blockDescriptorTable.getUnassignedBlockNum()) - 1); // unassignedBlockNum - 1 
 	blockDescriptorTable.setUnassignedInodeNum(atoi(blockDescriptorTable.getUnassignedInodeNum()) - 1); // unassignedInodeNum - 1
 
+	delete[] buffer;
+
 	return inodeNum;
 }
 
@@ -211,6 +215,8 @@ void FileSystem::writeFS( int inodeNum )
 
 	resetDataBlock( dataIndex, blocks );
 	resetInodeBlock( inodeNum );
+
+	delete[] dataIndex;
 }
 
 int FileSystem::writeFS( char* blockData )
@@ -393,6 +399,8 @@ int* FileSystem::getAssignedInodeIndex()
 	}
 
 	return inodeIndexList;
+
+	delete[] inodeIndexList;
 }
 
 
