@@ -87,10 +87,11 @@ void File::readFile(int fd, char* buffer, int size)//,TableManager& tm , FileSys
 	Inode inode = inodeE->inode;
 
 	int blocks = atoi(inode.blocks);
-	int* dataIdx = new int[blocks];
+	int dataIdx[20];
 	translateCharArrToIntArr(inode.dataBlockList, dataIdx, blocks);
 
-	int filePointer = ((SFTElement*)tm.getElement(SFT, fd))->file_pointer;// (FT)   getFilePoint( fd ) fd가 가르키는 시스템파일테이블에서 파일포인터를 받아온다
+	
+	int filePointer = ((SFTElement*)tm.getElement(SFT,  *(int*)tm.getElement( FDT, fd ) ) )->file_pointer;// (FT)   getFilePoint( fd ) fd가 가르키는 시스템파일테이블에서 파일포인터를 받아온다
 
 																		  // 하나의 data에다 각 데이터블럭에 분산됬던 것들을 합침
    string data = "";
@@ -106,8 +107,6 @@ void File::readFile(int fd, char* buffer, int size)//,TableManager& tm , FileSys
 		size = fileSize;
 	else if (fileSize < size) // 파일크기가 사용자가 보낸 size보다 큰 경우, 현재 파일에 쓰여진 내용만큼으로 사이즈 변경
 		size = fileSize;
-
-	buffer = new char[size];
 
 	std::strcpy(buffer, data.substr(filePointer, size).c_str());
 	tm.updateFilePointer(fd, filePointer + size);
@@ -130,7 +129,7 @@ void File::writeFile(int fd, char* buffer)//,  TableManager& tm, FileSystem& fs 
 	InodeElement* inodeE = tm.getInodeByFD( fd );
 	Inode inode = inodeE->inode;
 	int blocks = atoi(inode.blocks);
-	int* dataIdx = new int[blocks];
+	int dataIdx[20];
 	translateCharArrToIntArr(inode.dataBlockList, dataIdx, blocks);
 
 	/*
@@ -156,6 +155,7 @@ void File::writeFile(int fd, char* buffer)//,  TableManager& tm, FileSystem& fs 
 									   (FS)   block idx와 blockdata를 넘겨서  writeFS에서는 해당 데이터 블럭에 blockdata를 쓴다
 									   */
 
+	data += buffer;
 	int length = data.length();
 	char fileSize[7];
 	itoa(length, inode.size);
@@ -204,8 +204,6 @@ void File::writeFile(int fd, char* buffer)//,  TableManager& tm, FileSystem& fs 
 	//update Inode
 	tm.updateInode(fd, inode);
 	fs.updateInode_writeFile(inodeE->inode_number, inode);
-
-	delete dataIdx;
 }// writeFile
 
 // 기존에 있던 파일데이터를 buffer로 덮어 씌움
@@ -340,15 +338,15 @@ int File::unlinkFile(char* file) // file 은 absPath 형태
 
 /* 쉘 관련 */
 
-Entry* File::findFile( char* filename,  int* dirInodeNo ) // 상대경로 혹은 절대경로 
+Entry* File::findFile( char* filename,  int* dirInodeNo ) // 절대경로 
 {
 	FileSystem& fs = *FileSystem::getInstance();
 	PathManager& pm = *PathManager::getInstance();
 	TableManager& tm = *TableManager::getInstance();
 	DirectoryManager& dm = *DirectoryManager::getInstance();
 
-	char* absPath = pm.getAbsolutePath( filename );
-	vector<string>& pathFiles = *pm.getAllAbsPath( absPath );
+	vector<string>& filenames = pm.doAnalyzeFolder( filename );
+	vector<string>& pathFiles = *pm.getAllAbsPath( filename );
 
 	Entry* fileEntry;
 	
@@ -359,19 +357,18 @@ Entry* File::findFile( char* filename,  int* dirInodeNo ) // 상대경로 혹은 절대�
 	*dirInodeNo = dm.returnInodeNum( (char*) pathFiles.at( count -2 ).c_str() );
 	// 디렉토리의 아이노드 번호를 통해 디렉토리를 받아옴
 	Directory* dir = dm.returnDir( *dirInodeNo );
-	fileEntry = dir->findName( filename ); // 디렉토리에서 파일엔트리를 찾음
-	delete dir;
+	fileEntry = dir->findName( (char*)filenames[ filenames.size()-1].c_str() ); // 디렉토리에서 파일엔트리를 찾음
+	//delete dir;
 
 	return fileEntry; // 못찾은 경우 nullptr
 }
 
 //file entry가 nullptr이면 파일을 생성해줘야하는 명령어 : cat, 
-int File::createAndOpen( char* filename, Entry* fileEntry, int& dirInodeNo )
+int File::createAndOpen( char* file, Entry* fileEntry, int& dirInodeNo )
 {
 	PathManager& pm = *PathManager::getInstance();
-	char* absPath = pm.getAbsolutePath( filename );
-	vector<string> filenames = pm.doAnalyzeFolder( filename );
-	filename = (char*)filenames[ filenames.size() -1 ].c_str();
+	vector<string> filenames = pm.doAnalyzeFolder( file );
+	char*  filename = (char*)filenames[ filenames.size() -1 ].c_str();
 
 	if (fileEntry == nullptr)	// 디렉토리에 파일엔트리가 없는 경우, 파일을 생성해 준다
 	{
@@ -392,7 +389,7 @@ int File::open( Entry* fileEntry )
 
 	if (fileEntry == nullptr)
 	{
-		cout << endl << "해당 디렉토리에 파일이 없음." << endl;
+		cout << endl << "해당 파일이 없음." << endl;
 		fd = -1;
 		return fd;
 	}
@@ -401,16 +398,17 @@ int File::open( Entry* fileEntry )
 }
 
 /*  chmod 관련   */
-void File::changeFileMode(char* file, char* mode) // file 은filename
+void File::changeFileMode(char* file, char* mode) // file 은 절대경로
 {
 	FileSystem& fs = *FileSystem::getInstance();
 	TableManager& tm = *TableManager::getInstance();
 	PathManager& pm = *PathManager::getInstance();
 
-	int* dirInodeNo;
+	int* dirInodeNo = new int;
+
 	int fd = open( findFile(file, dirInodeNo) );
 
-	InodeElement* targetFileInodeE = (InodeElement*)tm.getElement(INODET, fd);
+	InodeElement* targetFileInodeE = tm.getInodeByFD( fd );
 	Inode inode = targetFileInodeE->inode; // file에 해당하는 inode를 얻어온다
 										   // file의 inode에서 mode를 변경해준다
 	inode.mode = new char[5];
@@ -424,7 +422,7 @@ void File::changeFileMode(char* file, char* mode) // file 은filename
 /*  cat 관련   */
 
 // cat > a 의 경우 : 덮어쓰기
-void File::overwriteCat(char* file, string data) // file은 filename만 pathX
+void File::overwriteCat(char* file, string data) // file은 path
 {
 	int* dirInodeNo = new int;
 	int fd = createAndOpen( file, findFile(file, dirInodeNo), *dirInodeNo  );
@@ -445,29 +443,40 @@ void File::joinCat(char* file, char* data) // file 은 filename
 
 // cat a 의 경우 :: 20줄씩 보기, 줄 기준은 endline( enter ASCII 13번 )
 // file이 없는 경우 쉘에서 예외처리 해줄 것 
-void File::displayCat(int fd)
+bool File::displayCat(int fd)
 {
 	//int fd = openFile( file, *(TableManager::getInstance()) ); // dispalyCat 외부에서 해줄 것
 
-	int perLineChar = 50;
-	int lineNo = 20;
-	int size = perLineChar * lineNo; // 한줄에 출력해줄 char수 50 , 20라인
+	const int perLineChar = 80;	// 한 라인의 문자 수
+	const int lineNo = 20; // 한번에 출력해줄 라인 수
 
-	char* buffer = nullptr;
+	char buffer[ perLineChar * lineNo ] = { 0 };
 
-	readFile(fd, buffer, size);
+	int size = perLineChar * lineNo;
+	readFile(fd, buffer,  size );
 
-	if (buffer == nullptr)
-		return;
+	int dataSize = strlen(buffer);
 
-	for (int j = 0; j < lineNo; j++)
+	int i = 0;
+	int lines = 0;
+	while( dataSize > 0 )
 	{
-		for (int i = 0; i < perLineChar; i++)
-			cout << buffer[i];
-		cout << endl;
-	}
+		cout << buffer[i];
+		i++;
 
-	delete buffer;
+		if( i % perLineChar == 0 )
+		{
+			lines++;
+			cout << endl;
+		}
+
+		if ( lines == lineNo ) // 파일이 계속 이어지는 경우 
+			return true;
+
+		dataSize--;
+	}
+	
+	return false; // 파일이 끝난 경우
 }
 
 /*  rm 관련   */
@@ -483,7 +492,7 @@ void File::removeFile(char* file)// file은 filename
 }
 
 /*  chmod 관련   */
-void File::splitFile(char* sourceFile, char* first_target, char* second_target) // sourceFile은 file이름 first_target은 xFilenamea, second_target은 xFilenameb 
+void File::splitFile(char* sourceFile, char* first_target, char* second_target) // sourceFile은 file의 절대경로, first_target은 xFilenamea, second_target은 xFilenameb 
 {
 	// source파일의 데이터를 읽어온다
 	int fd = open( findFile(sourceFile) );
@@ -491,7 +500,7 @@ void File::splitFile(char* sourceFile, char* first_target, char* second_target) 
 	TableManager* t = TableManager::getInstance();
 	TableManager& tm = *t;
 
-	InodeElement* sourceInodeE = (InodeElement*)tm.getElement(INODET, fd);
+	InodeElement* sourceInodeE = tm.getInodeByFD( fd );
 	int halfSize = atoi(sourceInodeE->inode.size) / 2;
 
 	// first_target파일에 반만큼 저장

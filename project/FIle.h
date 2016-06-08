@@ -44,7 +44,7 @@ public:
 	// cat
 	void overwriteCat(char* file, string data);
 	void joinCat(char* file, char* data);
-	void displayCat(int fd);
+	bool displayCat(int fd);
 
 	// rm
 	void removeFile(char* file);
