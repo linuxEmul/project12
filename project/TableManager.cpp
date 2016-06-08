@@ -436,6 +436,27 @@ bool TableManager::fileCloseEvent(int fd) {
 	int* inodeIndex = &myelement->inodeTableIdx;
 	InodeElement* myinode = (InodeElement*)getElement(INODET, *inodeIndex);
 	//myinode->inode = NULL;
+
+	//last index 줄여주기
+	if (*sftIndex == sftLastIndex)
+	{
+		do {
+			sftLastIndex--;
+		} while (-1 < sftLastIndex && systemFileTable[sftLastIndex].inodeTableIdx == -1);
+	}
+	if ((*myelement).inodeTableIdx == inodeLastIndex)
+	{
+		do {
+			inodeLastIndex--;
+		} while (-1 < inodeLastIndex && inodeTable[inodeLastIndex].inode_number == -1);
+	}
+	if (fd == fdtLastIndex)
+	{
+		do {
+			fdtLastIndex--;
+		} while (-1 < fdtLastIndex && fileDescriptorTable[fdtLastIndex] == -1);
+	}
+
 	myinode->inode_number = -1;
 	*inodeIndex = -1;
 	myelement->inodeTableIdx = -1;
