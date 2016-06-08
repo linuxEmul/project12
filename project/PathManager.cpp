@@ -58,11 +58,11 @@ vector<string>* PathManager::getAllAbsPath(char * direc)
 
 char* PathManager::getAbsolutePath(char* path)
 {
-	
+	string strPath = path;
 	if (!isRelativePath(path))
 		return path;
 
-	if (path[0] == '/') { // 파일명만 들어올 경우
+	if (((strPath.length() == 1 && strPath.find(".") != string::npos) && (strPath.length() == 2 && strPath.find("..") != string::npos)) && strPath.find("/") == string::npos) { // 파일명만 들어올 경우
 		string tmp = getCurrentPath();
 		tmp = tmp +"/" + path;
 		return stringToCharArr(tmp);
@@ -76,7 +76,6 @@ char* PathManager::getAbsolutePath(char* path)
 
 	//현재 경로 복사
 	PathStack stack = ps;
-	string strPath = path;
 
 	//stack.push("/"); //root
 
