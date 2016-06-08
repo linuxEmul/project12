@@ -10,6 +10,20 @@ char* getData(char* data, int size)
 	return buffer;
 }
 
+char* getDataBlockIndex(char* data, int size)
+{
+	char* buffer = new char[size];
+	memcpy(buffer, data, size - 1);
+	buffer[size - 1] = '\0';
+
+	for ( int i = 2; i < size; i += 3 )
+	{
+		buffer[i] = '\0';
+	}
+
+	return buffer;
+}
+
 /*   FileSystem   */
 
 /*   Path   */

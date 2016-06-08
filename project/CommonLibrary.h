@@ -49,6 +49,7 @@ const int blocksLength = 3;
 const int dataBlockList = 78;
 
 char* getData(char* data, int size);
+char* getDataBlockIndex(char* data, int size);
 /*   FileSystem   */
 
 /*   Directory   */

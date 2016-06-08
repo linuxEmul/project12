@@ -98,7 +98,7 @@ char* InodeBlock::getBlocks( int inodeNum )
 
 char* InodeBlock::getDataBlockList( int inodeNum )
 {
-	return getData( inodeBlocks[inodeNum].dataBlockList, dataBlockList );
+	return getDataBlockIndex( inodeBlocks[inodeNum].dataBlockList, dataBlockList );
 }
 
 void InodeBlock::setMode( int inodeNum, char* mode )
