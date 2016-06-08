@@ -383,7 +383,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 	case _filecopy:
 		if (param.size() == 3)
 		{
-			caseOfCopyFile((char*)param[1].c_str(), (char*)param[2].c_str());
+			caseOfFileCopy((char*)param[1].c_str(), (char*)param[2].c_str());
 		}
 		else cout << "error" << endl;
 		break;
