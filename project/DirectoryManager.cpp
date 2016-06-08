@@ -8,7 +8,7 @@ void DirectoryManager::Dir_Create(char* direc)
 {
 	try {
 		//Bitmap 갱신 함수를 통해 비트맵 갱신
-		string aaa = direc;
+		string path = direc;
 
 		Inode inode;
 
@@ -42,7 +42,7 @@ void DirectoryManager::Dir_Create(char* direc)
 		int currDirInode = -1;
 		int topDirInode = -1;
 		
-		if(aaa == "/")
+		if(path == "/")
 			topDirInode = returnInodeNum((char*)topDir.c_str());
 		else
 			topDirInode = returnInodeNum(stringToCharArr((*pm.getAllAbsPath(direc))[n - 2]));
@@ -59,7 +59,7 @@ void DirectoryManager::Dir_Create(char* direc)
 		char time[13];
 		getCurrentTime(time);
 
-		char linkCount[2] = "2";
+		char linkCount[2] = "0";
 
 		//Inode 정보 설정
 		inode.blocks = "0";
@@ -69,16 +69,17 @@ void DirectoryManager::Dir_Create(char* direc)
 		inode.time = time;
 		inode.ctime = time;
 
-
-		currDirInode = fs.writeFS_Dir(inode);
-
 		if (strcmp(direc, "/") != 0 && topDr.isExist((char*)currDir.c_str()) == true)
 		{
 			cout << "dir exist" << endl;
 			return;
 		}//디렉토리 중복 검사
 
+		currDirInode = fs.writeFS_Dir(inode);
 		curDr.setInodeNum(currDirInode, topDirInode);
+
+		
+
 
 		if (strcmp(direc, "/") != 0)
 		{
@@ -89,6 +90,7 @@ void DirectoryManager::Dir_Create(char* direc)
 			strcpy(e.name, currDir.c_str());
 			topDr.addDirectory(e, topDirInode);
 		}
+
 		Entry *enList = curDr.entryList;
 
 		string content = ".,";
@@ -102,15 +104,18 @@ void DirectoryManager::Dir_Create(char* direc)
 		char dataBlockList[] = "   \0";
 		itoa(idx, dataBlockList);
 
-		char size[2] = { '0' + content.length()};
-		//char dataBlockList = number;
+		char size[4];
+		memcpy(size, stringToCharArr(to_string(content.length())), strlen(stringToCharArr(to_string(content.length())))+1);
+
+		//링크 정보 다시 읽어와야 함
+		inode = fs.readFS(currDirInode);
 
 		//Inode 정보 설정
+		getCurrentTime(time);
+
 		inode.blocks = "1";
-		inode.linksCount = linkCount;
 		inode.mtime = time;
 		inode.size = size;
-		inode.time = time;
 		inode.dataBlockList = dataBlockList;
 
 		//데이터 블록 추가 후 업데이트

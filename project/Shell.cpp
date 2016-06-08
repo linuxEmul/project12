@@ -21,8 +21,16 @@ void Shell::run()
 			cout << p;
 		cout << "$";
 		string str = input();
-		if (str == "quit")
+		if (str == "quit") {
+			analyzeCmd("display t");
+			analyzeCmd("display 0");
+			analyzeCmd("display 1");
+			analyzeCmd("display 2");
+			analyzeCmd("display 3");
+			analyzeCmd("display 4");
+			analyzeCmd("display 5");
 			break;
+		}
 		analyzeCmd(stringToCharArr(str));
 	}
 }

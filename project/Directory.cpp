@@ -25,10 +25,22 @@ Directory::Directory()
 
 void Directory::setInodeNum(int cur, int top) 
 {
+	/*
 	entryList[0].inodeNum = cur; // 현재 디렉토리의 inode 번호 (.)
 	entryList[1].inodeNum = top; // 상위 디렉토리의 inode 번호 (..)
 	strcpy(entryList[0].name, ".");
 	strcpy(entryList[1].name, "..");
+	*/
+	Entry curE, topE;
+	curE.inodeNum = cur;
+	strcpy(curE.name, ".");
+	topE.inodeNum = top;
+	strcpy(topE.name, "..");
+
+	//초기 .과 ..을 추가할 때도 addDirectory 함수를 이용한다.
+	//LinkCount 관리가 수월
+	addDirectory(curE, cur);
+	addDirectory(topE, cur);
 }
 
 void Directory::addDirectory(Entry entry)
@@ -162,7 +174,13 @@ void Directory::addDirectory(Entry entry, int inodeNum)
 	inodeData.time = currTime;
 	inodeData.mtime = currTime;
 
-	fs.updateInode_writeFile(inodeNum, inodeData);
+	//해당 엔트리의 주인공의 linkCount를 늘려주고 저장한다.
+	Inode tmp = fs.inodeBlock->getInodeData(entry.inodeNum);
+	itoa(atoi(tmp.linksCount) + 1, tmp.linksCount);
+	fs.updateInode_writeFile(entry.inodeNum, tmp);
+	
+	if(entry.inodeNum != inodeNum)
+		fs.updateInode_writeFile(inodeNum, inodeData);
 }
 
 Entry* Directory::findName(char* dName)
@@ -285,8 +303,12 @@ void Directory::rmDirectory(int inodeNum, int myInodeNum)
 	getCurrentTime(currTime);
 	inodeData.time = currTime;
 	inodeData.mtime = currTime;
+	itoa(atoi(inodeData.linksCount) - 1, inodeData.linksCount);
 
 	fs.updateInode_writeFile(myInodeNum, inodeData);
+
+	//myInodeNum 즉, 삭제할 아이의 상위 디렉토리에서 엔트리 삭제 및 링크수 수정
+	
 }
 
 bool Directory::isExist(char *dName)

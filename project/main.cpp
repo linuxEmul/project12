@@ -14,6 +14,7 @@ int main()
 	}
 	catch (char* msg) {
 		cerr << msg << endl;
+		cerr << "전역 오류이므로 종료합니다. 만약 전역 오류가 아니라면 try-catch의 위치를 조정해주세요." << endl;
 	}
 	TableManager::allowDelete = true;
 	PathManager::allowDelete = true;

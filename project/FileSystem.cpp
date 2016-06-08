@@ -50,10 +50,10 @@ void FileSystem::loadFS( char* FS_File )
 
 void FileSystem::saveFS( char* FS_File )
 {
-	int fd = open( FS_File, _O_WRONLY | O_CREAT );
-
+	//on linux, sys/types.h
+	//int fd = open( FS_File, _O_WRONLY | O_CREAT, S_IRWXU | S_IRWXG | S_IRWXO);
+	int fd = open(FS_File, _O_WRONLY | O_CREAT);
 	write( fd, blockList, BLOCK_SIZE * NUM_BLOCKS );
-
 	close( fd );
 
 }
