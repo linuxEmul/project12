@@ -90,7 +90,6 @@ void File::readFile(int fd, char* buffer, int size)//,TableManager& tm , FileSys
 	int dataIdx[20];
 	translateCharArrToIntArr(inode.dataBlockList, dataIdx, blocks);
 
-	cout << "blocks " << inode.blocks << endl;
 	int filePointer = ((SFTElement*)tm.getElement(SFT,  *(int*)tm.getElement( FDT, fd ) ) )->file_pointer;// (FT)   getFilePoint( fd ) fd가 가르키는 시스템파일테이블에서 파일포인터를 받아온다
 
 																		  // 하나의 data에다 각 데이터블럭에 분산됬던 것들을 합침
@@ -214,6 +213,12 @@ void File::writeFile(int fd, char* buffer, int size)//,  TableManager& tm, FileS
 	TableManager& tm = *TableManager::getInstance();
 	FileSystem& fs = *FileSystem::getInstance();
 
+	if( size >= BLOCK_SIZE * 12 )
+	{
+		cout << " error:: overflow file size " << endl;
+		return ;
+	}
+
 	// (FT)   fd를 타고가서 inode에서 data block idx받아오기
 	InodeElement* inodeE = tm.getInodeByFD( fd );
 	Inode inode = inodeE->inode;
@@ -240,14 +245,16 @@ void File::writeFile(int fd, char* buffer, int size)//,  TableManager& tm, FileS
 
 	char* blockData;
 	int new_Blocks = 0;
+	int fp = 0;
 	while (size != 0)
 	{
 		if (size > BLOCK_SIZE)
 		{
 			blockData = new char[BLOCK_SIZE];
-			strcpy(blockData, (filedata.substr(0, BLOCK_SIZE)).c_str());
+			strcpy(blockData, (filedata.substr(fp, BLOCK_SIZE)).c_str());
 
 			size -= BLOCK_SIZE;
+			fp += BLOCK_SIZE;
 		}
 
 		else
@@ -260,7 +267,8 @@ void File::writeFile(int fd, char* buffer, int size)//,  TableManager& tm, FileS
 
 		int returnIdx = fs.writeFS( blockData );
 		
-		translateIntArrToCharArr(&returnIdx, inode.dataBlockList + new_Blocks, 1); // inode에 할당받은 데이터블럭 인덱스 저장
+		//translateIntArrToCharArr(&returnIdx, inode.dataBlockList + new_Blocks, 1); // inode에 할당받은 데이터블럭 인덱스 저장
+		itoa( returnIdx, &inode.dataBlockList[ new_Blocks*3 ] );
 
 		new_Blocks++;
 	}
@@ -484,7 +492,7 @@ bool File::displayCat(int fd)
 			cout << endl;
 		}
 
-		if ( lines == lineNo ) // 파일이 계속 이어지는 경우 
+		if ( lines == lineNo-1 ) // 파일이 계속 이어지는 경우 
 			return true;
 
 		dataSize--;
@@ -580,7 +588,7 @@ void File::copyFile( char* sourceFile, char* targetFile )
 	char sourceFileData[BLOCK_SIZE*12];
 	readFile(sourceFileFd, sourceFileData, 0);
 
-	writeFile(targetFileFd, sourceFileData);
+	writeFile(targetFileFd, sourceFileData, strlen(sourceFileData) );
 }
 
 /*  file copy 관련   */
@@ -607,6 +615,10 @@ void File::copySysFile(char* sourceSysFile, char* targetFile)
 
 	int* dirInodeNo = new int;
 	int fd = createAndOpen(targetFile, findFile(targetFile, dirInodeNo), *dirInodeNo );//-> filename으로 file create해줄 것 //-> file open할것 
+
+	if( fd <= 0 )
+		return;
+
 	writeFile(fd, (char*)data.c_str(), data.length());//-> filewrite 해줄 것
 
 	delete dirInodeNo;

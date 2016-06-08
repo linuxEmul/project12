@@ -526,8 +526,10 @@ void Shell::caseOfdisplayCat(char* filename)
 		cout << endl;
 
 		getline(cin, input);
+
 		if (input.at(0) == '\n')
 			cout << endl << endl;
+		
 	}
 }
 
@@ -643,7 +645,7 @@ void Shell::caseOfFileCopy(char* sourceSysFile, char* targetFile)
 	File file;
 	//char* absSourceFilename = getAbsPath(sourceSysFile);
 	char* absTargetFilename = getAbsPath(targetFile);
-	file.copyFile(sourceSysFile, targetFile);
+	file.copySysFile(sourceSysFile, absTargetFilename);
 }
 
 bool Shell::isSameDirectory(char* firstFile, char* secondFile)
