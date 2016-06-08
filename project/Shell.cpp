@@ -225,17 +225,17 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 
 
 				//cout << stringToCharArr(bName );
-				//a, b°°Àº µð·ºÅä¸®¸é a¸¦ b·Î ÆÄÀÏ¸í º¯°æ
-				if (topdr.findName(stringToCharArr(bName)) == NULL)//ÀÌ¸§ÀÌ Á¸ÀçÇÏÁö ¾ÊÀ¸¸é
+				//a, b같은 디렉토리면 a를 b로 파일명 변경
+				if (topdr.findName(stringToCharArr(bName)) == NULL)//이름이 존재하지 않으면
 				{
-					cout << "if¹® ¾È¿¡ µé¾î ¿Ô´Ù " << endl;
+					cout << "if문 안에 들어 왔다 " << endl;
 
 					//  source   inodenum
 					int cn = topdr.findName(stringToCharArr(aName))->inodeNum;
-					// »óÀ§µð·ºÅä¸®ÀÇ inodenum
+					// 상위디렉토리의 inodenum
 					int myn = topdr.findName(".")->inodeNum;
 
-					//source Entry Á¤º¸
+					//source Entry 정보
 					Entry e;
 					e.inodeNum = topdr.findName(stringToCharArr(aName))->inodeNum;
 					strcpy(e.name, stringToCharArr(stringToCharArr(bName)));
@@ -246,30 +246,30 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 				}
 				else
 				{
-					cout << "Á¸Àç" << endl;
+					cout << "존재" << endl;
 				}
 
 			}
 			else
 			{
-				// »ó´ë°æ·Î ¾ÈµÊ.. 
-				// mv ÆÄÀÏ ¾ÆÁ÷ ¾ÈÇÔ
+				// 상대경로 안됨.. 
+				// mv 파일 아직 안함
 
 				vector<string>& arr = *pm.getAllAbsPath(stringToCharArr(param[1]));
 				vector<string>& arr2 = *pm.getAllAbsPath(stringToCharArr(param[2]));
 				//pm.getAllAbsPath( stringToCharArr(param[2]) );
-				Directory topdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 2]));//»óÀ§µð·ºÅä¸® °´Ã¼
+				Directory topdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 2]));//상위디렉토리 객체
 
-																					// ¿Å±æ ´ë»óÀÌ ÆÄÀÏÀÏ °æ¿ì
+																					// 옮길 대상이 파일일 경우
 				if (dm.isFile(stringToCharArr(aName), topdr) == 'f') {
 					Entry& entry = *topdr.findName(stringToCharArr(aName));
 					int curinode = entry.inodeNum;
 					int topinode = topdr.findName(".")->inodeNum;
 
-					// .. »èÁ¦
+					// .. 삭제
 					topdr.rmDirectory(curinode, topinode);
 
-					Directory mvdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size() - 1])); //¿Å°ÜÁú »óÀ§µð·ºÅä¸®
+					Directory mvdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size() - 1])); //옮겨질 상위디렉토리
 
 					int mvinode = mvdr.findName(".")->inodeNum;
 
@@ -278,7 +278,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 					strcpy(e.name, stringToCharArr(aName));
 					mvdr.addDirectory(e, mvinode);
 				}
-				// ¿Å±æ ´ë»óÀÌ µð·ºÅä¸®ÀÏ °æ¿ì
+				// 옮길 대상이 디렉토리일 경우
 				else {
 
 					Directory curdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 1]));
@@ -289,11 +289,11 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 
 					//int temp = curinode;
 
-					// .. »èÁ¦
+					// .. 삭제
 					curdr.rmDirectory(topinode, curinode);
 					topdr.rmDirectory(curinode, topinode);
 
-					Directory mvdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size() - 1])); //¿Å°ÜÁú »óÀ§µð·ºÅä¸®
+					Directory mvdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size() - 1])); //옮겨질 상위디렉토리
 
 					int mvinode = mvdr.findName(".")->inodeNum;
 
@@ -302,7 +302,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 					strcpy(e.name, stringToCharArr(aName));
 					mvdr.addDirectory(e, mvinode);
 
-					// .. Ãß°¡
+					// .. 추가
 					e.inodeNum = mvinode;
 					strcpy(e.name, stringToCharArr(".."));
 					curdr.addDirectory(e, curinode);
@@ -311,6 +311,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 		}
 		else cout << "error" << endl;
 		break;
+
 
 	case _cp:
 		if (param.size() == 3)
@@ -561,7 +562,7 @@ void Shell::caseOfChmod(char* path, int mode)
 		c_mode[0] = 'f';
 		itoa(mode, &c_mode[1], 10);
 		c_mode[4] = '\0';
-		file.changeFileMode((char*)vAllAbs[vAllAbs.size() - 2].c_str(), c_mode);
+		file.changeFileMode((char*)vAllAbs[vAllAbs.size() - 1].c_str(), c_mode);
 	}
 	else
 	{

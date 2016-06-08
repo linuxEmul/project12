@@ -472,5 +472,23 @@ bool TableManager::isExistInInodeTable(int inodeNum)
 	}
 	return false;
 }
+void * TableManager::getAllElement(TableType type, int index)
+{
+	switch (type) {
+	case FDT:
+		return fileDescriptorTable;
+		break;
+	case INODET:
+		return inodeTable;
+		break;
+	case SFT:
+		return systemFileTable;
+		break;
+	default:
+
+		break;
+	}
+	return NULL;
+}
 TableManager* TableManager::instance = NULL;
 bool TableManager::allowDelete = false;

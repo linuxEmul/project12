@@ -124,4 +124,5 @@ public:
 	
 	int* getTableInfo(TableType type, void* result);
 	
+	void * getAllElement(TableType type, int index);
 };
