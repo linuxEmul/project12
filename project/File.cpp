@@ -472,7 +472,7 @@ bool File::displayCat(int fd)
 	const int perLineChar = 80;	// 한 라인의 문자 수
 	const int lineNo = 20; // 한번에 출력해줄 라인 수
 
-	char buffer[ perLineChar * lineNo ] = { 0 };
+	char buffer[ perLineChar * lineNo ];
 
 	int size = perLineChar * lineNo;
 	readFile(fd, buffer,  size );
@@ -492,7 +492,7 @@ bool File::displayCat(int fd)
 			cout << endl;
 		}
 
-		if ( lines == lineNo-1 ) // 파일이 계속 이어지는 경우 
+		if ( lines == lineNo ) // 파일이 계속 이어지는 경우 
 			return true;
 
 		dataSize--;
