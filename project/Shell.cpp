@@ -151,29 +151,67 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 
 
 	case _rm:
-		if (param.size() == 2)
-		{
-			string path = param[1];
-			DirectoryManager& dm = *DirectoryManager::getInstance();
-			PathManager& pm = *PathManager::getInstance();
-			char* filename = stringToCharArr(pm.doAnalyzeFolder(stringToCharArr(path))[pm.doAnalyzeFolder(stringToCharArr(path)).size() - 1]);
+      if (param.size() == 2)
+      {
+         if (param[1] == "/")
+         {
+            display("/는 삭제할 수 없습니다.");
+            return;
+         }
+         string path = param[1];
+         DirectoryManager& dm = *DirectoryManager::getInstance();
+         PathManager& pm = *PathManager::getInstance();
+         char* filename = stringToCharArr(pm.doAnalyzeFolder(stringToCharArr(path))[pm.doAnalyzeFolder(stringToCharArr(path)).size() - 1]);
 
-			if (pm.isRelativePath(stringToCharArr(path)))
-				path = pm.getAbsolutePath(stringToCharArr(path));
+         if (pm.isRelativePath(stringToCharArr(path)))
+            path = pm.getAbsolutePath(stringToCharArr(path));
 
-			vector<string> vAllAbs = *pm.getAllAbsPath(stringToCharArr(path));
-			Directory d = dm.Dir_Read(stringToCharArr(vAllAbs[vAllAbs.size() - 2]));
-			char kinds = dm.isFile(filename, d);
-			if (kinds == 'f')
-			{
-				caseOfRemoveFile( (char*)param[1].c_str() );
+		 if(!dm.isReallyExist(stringToCharArr(path)))
+		 {
+			 display("경로가 존재하지 않습니다.");
+		 }
+
+         vector<string> vAllAbs = *pm.getAllAbsPath(stringToCharArr(path));
+		 vector<string>& vArr = *pm.getAllAbsPath(pm.getCurrentPath());
+		 if (vAllAbs.size() == 1)
+         {
+            display("/는 삭제할 수 없습니다.");
+            return;
+         }
+		 if(path==pm.getCurrentPath())
+		 {
+			 display(".과 ..은 삭제할 수 없습니다.");
+            return;
+		 }
+		 else if(path == vArr[vArr.size()-2])
+		 {
+			 display(".과 ..은 삭제할 수 없습니다.");
+            return;
+		 }
+		 
+		 for(int i=0;i < vArr.size(); i++)
+		 {
+			if(path == vArr[i]){
+				display("현재 경로의 상위 디렉토리는 삭제할 수 없습니다.");
+				return;
 			}
-			else
-				dm.Dir_Unlink_All(stringToCharArr(path));
+		 }
 
-		}
-		else cout << "error" << endl;
-		break;
+		 //추가로 내 현재 경로 상위 폴더에 있는 애들을 삭제하려고 하면 차단해야 함
+
+         Directory d = dm.Dir_Read(stringToCharArr(vAllAbs[vAllAbs.size() - 2]));
+         char kinds = dm.isFile(filename, d);
+         if (kinds == 'f')
+         {
+            
+            caseOfRemoveFile(filename);
+         }
+         else
+            dm.Dir_Unlink_All(stringToCharArr(path));
+
+      }
+      else cout << "error" << endl;
+      break;
 
 
 	case _pwd:
