@@ -346,6 +346,9 @@ void FileSystem::displayBlockBitmap()
 			cout << endl;
 
 		cout << blockBitmap[i] ;
+
+		if ( i == 99 )
+			cout << endl;
 	}
 }
 
@@ -353,10 +356,13 @@ void FileSystem::displayInodeBitmap()
 {
 	for ( int i = 0; i < 64; i++ )
 	{
-		if ( i != 0 && ( i % 10 == 0 || i == 63 ) )
+		if ( i != 0 && i % 10 == 0  )
 			cout << endl;
 
 		cout << inodeBitmap[i] ;
+
+		if ( i == 63 )
+			cout << endl;
 	}
 }
 
