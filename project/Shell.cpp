@@ -166,7 +166,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 			char kinds = dm.isFile(filename, d);
 			if (kinds == 'f')
 			{
-				caseOfRemoveFile(filename);
+				caseOfRemoveFile( (char*)param[1].c_str() );
 			}
 			else
 				dm.Dir_Unlink_All(stringToCharArr(path));

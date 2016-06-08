@@ -323,8 +323,10 @@ int File::unlinkFile(char* file) // file 은 absPath 형태
 
 	// 현재 시스템의 테이블에 존재한다는 것은 오픈되어있다는 것이므로 실패!
 	if (tm.isExistInInodeTable( fileEntry->inodeNum ) )
+	{
+		cout << "파일이 오픈되어있습니다" << endl;
 		return 1;
-
+	}
 	// 없는경우 정상적으로 파일을 unlink해줘야 함.
 	// 아이노드 번호에 해당하는 아이노드 정보를 읽어옴
 	// 속하는 디렉토리에서 해당 파일과 아이노드번호 삭제 --> 디렉토리 클레스에서 파일명을 통해 엔트리 제거하는 함수 필요
@@ -490,11 +492,8 @@ bool File::displayCat(int fd)
 }
 
 /*  rm 관련   */
-void File::removeFile(char* file)// file은 filename
+void File::removeFile(char* file)// file은 절대경로
 {
-	PathManager* p = PathManager::getInstance();
-	PathManager& pm = *p;
-
 	int error = unlinkFile( file );
 
 	if ( error == 1 ) // error = 0 정상 / error = 1 에러
@@ -538,11 +537,13 @@ void File::pasteFile(char* firstFile, char* secondFile)
 	int secondFileFd = open( findFile(secondFile, dirInodeNo ) );
 	delete dirInodeNo;
 
-	char* secondFileData;
+	if( firstFileFd <= 0 || secondFile <= 0 )
+		return;
+
+	char secondFileData[BLOCK_SIZE*12];
 	readFile(secondFileFd, secondFileData, 0);
 
 	writeFile(firstFileFd, secondFileData);
-	
 }
 
 /* copy (local) file */
