@@ -147,10 +147,10 @@ void translateIntArrToCharArr(int* intArr, char* charArr, int count)
 {
 	char* pCharArr = charArr;
 	for (int i = 0; i < count; i++)
-		itoa(intArr[i], pCharArr + i * 3, 10);
+		_itoa(intArr[i], pCharArr + i * 3);
 }
 
-void itoa(int num, char *pStr)
+void _itoa(int num, char *pStr)
 {
 	int radix = 10;
 	int deg = 1;

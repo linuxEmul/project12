@@ -161,7 +161,7 @@ void File::writeFile(int fd, char* buffer)//,  TableManager& tm, FileSystem& fs 
 	data += buffer;
 	int length = data.length();
 	char fileSize[7];
-	itoa(length, inode.size);
+	_itoa(length, inode.size);
 
 	// 파일의 데이터를 FS의 DataBlock에 써주는 부분
 	char blockData[BLOCK_SIZE];
@@ -233,7 +233,7 @@ void File::writeFile(int fd, char* buffer, int size)//,  TableManager& tm, FileS
 	char fileSize[4] = { 0 };
 	if ( size != 0 )
 	{
-		itoa( size, fileSize );
+		_itoa( size, fileSize );
 		inode.size = fileSize;
 	}
 

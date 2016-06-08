@@ -98,7 +98,7 @@ int FileSystem::writeFS( Inode inode )
 	int inodeNum = searchUnassignedInodeNum(); // 아이노드 번호 할당
 
 	char *buffer = new char[2];
-	itoa( dataBlockNum, buffer );
+	_itoa( dataBlockNum, buffer );
 
 	int inodeBlockNum = checkInodeBlockNum( inodeNum ); // 아이노드 번호가 32이상인지 확인
 
@@ -143,7 +143,7 @@ int FileSystem::writeFS_Dir(Inode inode)
 	int inodeNum = searchUnassignedInodeNum(); // 아이노드 번호 할당
 
 	char *buffer = new char[2];
-	itoa(dataBlockNum, buffer);
+	_itoa(dataBlockNum, buffer);
 
 	int inodeBlockNum = checkInodeBlockNum(inodeNum); // 아이노드 번호가 32이상인지 확인
 

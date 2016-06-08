@@ -571,7 +571,7 @@ void Shell::caseOfChmod(char* path, int mode)
 		File file;
 		char c_mode[5];
 		c_mode[0] = 'f';
-		itoa(mode, &c_mode[1], 10);
+		_itoa(mode, &c_mode[1]);
 		c_mode[4] = '\0';
 		file.changeFileMode((char*)vAllAbs[vAllAbs.size() - 1].c_str(), c_mode);
 	}
@@ -579,7 +579,7 @@ void Shell::caseOfChmod(char* path, int mode)
 	{
 		char c_mode[5];
 		c_mode[0] = 'd';
-		itoa(mode, &c_mode[1], 10);
+		_itoa(mode, &c_mode[1]);
 		c_mode[4] = '\0';
 		dm.changeDirMode(stringToCharArr(vAllAbs[vAllAbs.size() - 1]), c_mode);
 	}

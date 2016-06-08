@@ -106,7 +106,8 @@ void Directory::addDirectory(Entry entry, int inodeNum)
 	(FS)   data block[idx]에 저장된 데이터 읽어오기
 	하나의 data에다 각 데이터블럭에 분산됬던 것들을 합침
 	*/
-	string filedata(trim(data + content));   // 기존데이터블럭의 내용과 새로운 내용을 합친 것
+	string filedata = data + content;   // 기존데이터블럭의 내용과 새로운 내용을 합친 것
+	filedata = trim(filedata);
 	cout << "dataIdx : "<< dataIdx << endl;
 	fs.resetDataBlock(dataIdx, blocks);// writeFile에서 writeFS를 부르기 전에 BlockBitmap의 파일에 할당됬던 indxe 초기화
 									   /* 참고 BlockBitmap이 1인 경우만 데이터블럭이 저장되어있는 것이므로 getDatablock은 blockbitmap이 1인지 검사 후 저장된 data return */
@@ -121,7 +122,7 @@ void Directory::addDirectory(Entry entry, int inodeNum)
 	char fileSize[7];
 	for (int i = 0; i <7; i++)
 		fileSize[i] = ' ';
-	itoa(length, fileSize);
+	_itoa(length, fileSize);
 
 	inodeData.size = fileSize;
 
@@ -176,7 +177,7 @@ void Directory::addDirectory(Entry entry, int inodeNum)
 
 	//해당 엔트리의 주인공의 linkCount를 늘려주고 저장한다.
 	Inode tmp = fs.inodeBlock->getInodeData(entry.inodeNum);
-	itoa(atoi(tmp.linksCount) + 1, tmp.linksCount);
+	_itoa(atoi(tmp.linksCount) + 1, tmp.linksCount);
 	fs.updateInode_writeFile(entry.inodeNum, tmp);
 	
 	if(entry.inodeNum != inodeNum)
@@ -252,7 +253,7 @@ void Directory::rmDirectory(int inodeNum, int myInodeNum)
 	char fileSize[7];
 	for (int i = 0; i <7; i++)
 		fileSize[i] = ' ';
-	itoa(length, fileSize);
+	_itoa(length, fileSize);
 
 	inodeData.size = fileSize;
 
@@ -303,7 +304,7 @@ void Directory::rmDirectory(int inodeNum, int myInodeNum)
 	getCurrentTime(currTime);
 	inodeData.time = currTime;
 	inodeData.mtime = currTime;
-	itoa(atoi(inodeData.linksCount) - 1, inodeData.linksCount);
+	_itoa(atoi(inodeData.linksCount) - 1, inodeData.linksCount);
 
 	fs.updateInode_writeFile(myInodeNum, inodeData);
 

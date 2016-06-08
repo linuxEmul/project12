@@ -116,7 +116,7 @@ void DirectoryManager::Dir_Create(char* direc)
 		//다시 쓴다
 		int assignedIdx = fs.writeFS((char*)content.c_str());
 		char dataBlockList[] = "   \0";
-		itoa(assignedIdx, dataBlockList);
+		_itoa(assignedIdx, dataBlockList);
 
 		char size[4];
 		memcpy(size, stringToCharArr(to_string(content.length())), strlen(stringToCharArr(to_string(content.length())))+1);
