@@ -527,8 +527,8 @@ void Shell::caseOfdisplayCat(char* filename)
 
 		getline(cin, input);
 
-		if (input.at(0) == '\n')
-			cout << endl << endl;
+		if (input[0] == '\n')
+			cout << "read continue..."<< endl << endl;
 		
 	}
 }
