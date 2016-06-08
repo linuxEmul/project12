@@ -1,5 +1,5 @@
 #include "DirectoryManager.h"
-
+#include "FIle.h"
 #include "PathManager.h"
 #include "InodeBlock.h"
 #include "DataBlock.h"
@@ -188,6 +188,32 @@ void DirectoryManager::Dir_Unlink(char* direc)
 
 		fs.writeFS(currInodeNum);
 	}
+	else
+		throw "디렉토리가 비어있지 않습니다.";
+}
+
+void DirectoryManager::Dir_Unlink_All(char * direc)
+{
+	Directory dr = Dir_Read(direc);
+
+	if (dr.entryCnt != 2)
+	{
+		for (int i = 0; i < dr.entryCnt; i++)
+		{
+			string path = direc;
+			path.append("/");
+			path.append(dr.entryList[i].name);
+
+			if (isFile(dr.entryList[i].name, dr) == 'f')
+			{
+				File f;
+				f.removeFile(dr.entryList[i].name);
+			}
+			else
+				Dir_Unlink_All(stringToCharArr(path));
+		}
+	}
+	Dir_Unlink(direc);
 }
 
 int DirectoryManager::returnInodeNum(char * direc)
@@ -398,6 +424,43 @@ bool DirectoryManager::isReallyExist(char * path)
 		//cout << msg << endl;
 		return false;
 	}
+}
+void DirectoryManager::changeDirMode(char* path, char* mode)
+{
+	FileSystem& fs = *FileSystem::getInstance();
+	TableManager& tm = *TableManager::getInstance();
+
+	DirectoryManager& dm = *DirectoryManager::getInstance();
+
+	// 디렉토리 이름으로 파일 디스크립터에서 디렉토리 인덱스 받아오기 
+	int dI = dm.returnInodeNum(path);
+
+	Inode dInodeData = fs.inodeBlock->getInodeData(dI);
+
+	dInodeData.mode = new char[5];
+
+	for (int i = 0; i < 5; i++)
+		dInodeData.mode[i] = mode[i];
+
+	if (tm.isExistInInodeTable(dI))
+		tm.updateInode(dI, dInodeData);
+	fs.updateInode_writeFile(dI, dInodeData);
+}
+char DirectoryManager::isFile(char* filename, Directory currentDir)
+{
+	if (strcmp(filename, "/") == 0)
+	{
+		return 'd';
+	}
+	Entry* fileEntry = currentDir.findName(filename);
+	if (fileEntry == NULL) {
+		throw "파일이 존재하지 않습니다.";
+	}
+
+	Directory* dir = returnDir(fileEntry->inodeNum);
+	if (dir == NULL)
+		return 'f';
+	return 'd';
 }
 DirectoryManager* DirectoryManager::instance = NULL;
 bool DirectoryManager::allowDelete = false;

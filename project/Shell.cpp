@@ -171,13 +171,13 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 
          vector<string> vAllAbs = *pm.getAllAbsPath(stringToCharArr(path));
          Directory d = dirm.Dir_Read(stringToCharArr(vAllAbs[vAllAbs.size()-2]));
-         char kinds = isFile(filename, d);
+         char kinds = dirm.isFile(filename, d);
          if (kinds = 'f')
          {
             caseOfRemoveFile(filename);
          }
          else
-            ;// casOfRemoveDir이든 뭐든 dir unlink를 불러주는 함수를 넣어주;
+            dm.Dir_Unlink_All(stringToCharArr(path));// casOfRemoveDir이든 뭐든 dir unlink를 불러주는 함수를 넣어주;
 
       }
       else cout << "error" << endl;
@@ -466,7 +466,7 @@ void Shell::caseOfChmod(char* path, int mode)
 	Directory d = dirm.Dir_Read(stringToCharArr(vAllAbs[vAllAbs.size()-2]));
 
 	cout << filename << endl;
-	if ( isFile(filename, d) == 'f' )
+	if ( dirm.isFile(filename, d) == 'f' )
 	{
 		File file;
 		char c_mode[5];
@@ -486,25 +486,6 @@ void Shell::caseOfChmod(char* path, int mode)
 
 }
 
-
-char Shell::isFile(char * filename, Directory currentDir)
-{
-	if(strcmp(filename, "/") == 0)
-	{
-		return 'd';
-	}
-	DirectoryManager& dm = *DirectoryManager::getInstance();
-
-	Entry* fileEntry = currentDir.findName(filename);
-	if(fileEntry == NULL){
-		throw "파일이 존재하지 않습니다.";
-	}
-
-	Directory* dir = dm.returnDir(fileEntry->inodeNum);
-	if (dir == NULL)
-		return 'f';
-	return 'd';
-}
 
 void Shell::caseOfRemoveFile(char* filename)
 {

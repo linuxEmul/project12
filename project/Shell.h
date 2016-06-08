@@ -70,7 +70,6 @@ public:
 
 	void caseOfChmod( char* path, int mode );
 
-	char isFile( char * filename, Directory currentDir );
 	void caseOfRemoveFile( char * filename );
 
 	void caseOfSplitFile( char* filename );
