@@ -204,16 +204,14 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 		else cout << "error" << endl;
 		break;
 
-
 	case _mv:
 		if (param.size() == 3)
 		{
-			/*
-			if ( isSameDirectory( param[1].c_str(), param[2].c_str() ) )
-			{
-					a, b같은 디렉토리면 a를 b로 파일명 변경
-			}
-			else
+			//if ( isSameDirectory(param[1].c_str(), param[2].c_str()) )
+			//{
+			//		//a, b같은 디렉토리면 a를 b로 파일명 변경
+			//}
+		//	else
 			{
 				vector<string> a;
 				pm.doAnalyzeFolder(stringToCharArr(param[1]), a);
@@ -228,20 +226,20 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 				int curinode = topdr.findName(stringToCharArr(curDirName))->inodeNum;
 				int topinode = curdr.findName("..")->inodeNum;
 
-				curdr.rmDirectory(topinode);
-				topdr.rmDirectory(curinode);
+				//int temp = curinode;
+
+				curdr.rmDirectory(topinode,curinode);
+				topdr.rmDirectory(curinode,topinode);
 
 				Directory mvdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size() - 1])); //옮겨질 상위디렉토리
+
+				int mvinode = mvdr.findName("..")->inodeNum;
 
 				Entry e;
 				e.inodeNum = curinode;
 				strcpy(e.name, stringToCharArr(curDirName));
-				mvdr.addDirectory(e, curinode);
-
-				//dm.Dir_Unlink( stringToCharArr(arr[arr.size()-1]) );
-				//경로 a를 경로 b로 이동
+				mvdr.addDirectory(e, mvinode);
 			}
-			*/
 		}
 		else cout << "error" << endl;
 		break;
