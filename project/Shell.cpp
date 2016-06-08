@@ -198,45 +198,120 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 
 
 	case _mv:
+
 		if (param.size() == 3)
 		{
-			/*
-			if ( isSameDirectory( param[1].c_str(), param[2].c_str() ) )
+			string path = param[1], path2 = param[2];
+			if (pm.isRelativePath(stringToCharArr(path)))
+				param[1] = pm.getAbsolutePath(stringToCharArr(path));
+			if(pm.isRelativePath(stringToCharArr(path2)))
+				param[2] = pm.getAbsolutePath(stringToCharArr(path2));
+
+			vector<string> b;
+			pm.doAnalyzeFolder(stringToCharArr(param[2]), b);
+			string bName = b[b.size() - 1];
+
+			vector<string> a;
+			pm.doAnalyzeFolder(stringToCharArr(param[1]), a);
+			string aName = a[a.size() - 1];
+
+			if ( isSameDirectory(stringToCharArr(param[1]), stringToCharArr(param[2]) ) == true ) 
 			{
-			a, b같은 디렉토리면 a를 b로 파일명 변경
+				vector<string>& arr = *pm.getAllAbsPath(stringToCharArr(param[1]));
+				vector<string>& arr2 = *pm.getAllAbsPath(stringToCharArr(param[2]));
+				
+				Directory topdr = dm.Dir_Read( stringToCharArr(arr2[arr2.size() - 2]) ) ;
+				
+				
+
+				//cout << stringToCharArr(bName );
+					//a, b같은 디렉토리면 a를 b로 파일명 변경
+				if ( topdr.findName( stringToCharArr(bName ) ) == NULL )//이름이 존재하지 않으면
+				{
+					cout << "if문 안에 들어 왔다 " << endl ;
+
+					//  source   inodenum
+					int cn = topdr.findName( stringToCharArr(aName ))->inodeNum;
+					// 상위디렉토리의 inodenum
+					int myn = topdr.findName(".")->inodeNum;
+					
+					//source Entry 정보
+					Entry e ;
+					e.inodeNum = topdr.findName( stringToCharArr(aName))->inodeNum;
+					strcpy(e.name, stringToCharArr( stringToCharArr(bName) ) );
+					
+					topdr.rmDirectory(cn, myn);
+					topdr.addDirectory(e, myn);
+				
+				}
+				else
+				{
+					cout << "존재" << endl ;
+				}
+
 			}
 			else
 			{
-			vector<string> a;
-			pm.doAnalyzeFolder(stringToCharArr(param[1]), a);
-			string curDirName = a[a.size() - 1];
-			vector<string>& arr = *pm.getAllAbsPath(stringToCharArr(param[1]));
-			vector<string>& arr2 = *pm.getAllAbsPath(stringToCharArr(param[2]));
-			//pm.getAllAbsPath( stringToCharArr(param[2]) );
+				// 상대경로 안됨.. 
+				// mv 파일 아직 안함
+				
+				vector<string>& arr = *pm.getAllAbsPath(stringToCharArr(param[1]));
+				vector<string>& arr2 = *pm.getAllAbsPath(stringToCharArr(param[2]));
+				//pm.getAllAbsPath( stringToCharArr(param[2]) );
+				Directory topdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 2]));//상위디렉토리 객체
+				
+				// 옮길 대상이 파일일 경우
+				if(dm.isFile(stringToCharArr(aName),topdr) == 'f'){
+					Entry& entry = *topdr.findName(stringToCharArr(aName));
+					int curinode = entry.inodeNum;
+					int topinode = topdr.findName(".")->inodeNum;
 
-			Directory curdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 1]));
-			Directory topdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 2])); //상위디렉토리 객체
+					// .. 삭제
+					topdr.rmDirectory(curinode,topinode);
+					
+					Directory mvdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size()-1])); //옮겨질 상위디렉토리
 
-			int curinode = topdr.findName(stringToCharArr(curDirName))->inodeNum;
-			int topinode = curdr.findName("..")->inodeNum;
+					int mvinode = mvdr.findName(".")->inodeNum;
 
-			curdr.rmDirectory(topinode);
-			topdr.rmDirectory(curinode);
+					Entry e;
+					e.inodeNum = curinode;
+					strcpy(e.name, stringToCharArr(aName));
+					mvdr.addDirectory(e, mvinode);
+				}
+				// 옮길 대상이 디렉토리일 경우
+				else{
 
-			Directory mvdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size() - 1])); //옮겨질 상위디렉토리
+					Directory curdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 1]));
+					 
 
-			Entry e;
-			e.inodeNum = curinode;
-			strcpy(e.name, stringToCharArr(curDirName));
-			mvdr.addDirectory(e, curinode);
+					int curinode = topdr.findName(stringToCharArr(aName))->inodeNum;
+					int topinode = curdr.findName("..")->inodeNum;
 
-			//dm.Dir_Unlink( stringToCharArr(arr[arr.size()-1]) );
-			//경로 a를 경로 b로 이동
+					//int temp = curinode;
+
+					// .. 삭제
+					curdr.rmDirectory(topinode,curinode);
+					topdr.rmDirectory(curinode,topinode);
+
+					Directory mvdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size()-1])); //옮겨질 상위디렉토리
+
+					int mvinode = mvdr.findName(".")->inodeNum;
+
+					Entry e;
+					e.inodeNum = curinode;
+					strcpy(e.name, stringToCharArr(aName));
+					mvdr.addDirectory(e, mvinode);
+
+					// .. 추가
+					e.inodeNum = mvinode;
+					strcpy(e.name, stringToCharArr(".."));				
+					curdr.addDirectory(e,curinode);
+				}
 			}
-			*/
 		}
 		else cout << "error" << endl;
 		break;
+
 
 	case _cp:
 		if (param.size() == 3)
@@ -545,17 +620,17 @@ void Shell::caseOfCopyFile(char* sourceFile, char* targetFile)
 
 }
 
-bool isSameDirectory(char* firstFile, char* secondFile)
+bool Shell::isSameDirectory( char* firstFile, char* secondFile )
 {
 	PathManager& pm = *PathManager::getInstance();
+	
+	char* firstFilePath = pm.getAbsolutePath( firstFile );
+	char* secondFilePath = pm.getAbsolutePath( secondFile );
+	
+	vector<string>* firstFileAllPath = pm.getAllAbsPath( firstFile );
+	vector<string>* secondFileAllPath = pm.getAllAbsPath( secondFile );
 
-	char* firstFilePath = pm.getAbsolutePath(firstFile);
-	char* secondFilePath = pm.getAbsolutePath(secondFile);
-
-	vector<string>* firstFileAllPath = pm.getAllAbsPath(firstFile);
-	vector<string>* secondFileAllPath = pm.getAllAbsPath(secondFile);
-
-	if (firstFileAllPath[firstFileAllPath->size() - 2] == secondFileAllPath[secondFileAllPath->size() - 2])
+	if ( firstFileAllPath->at( firstFileAllPath->size()-2 ) == secondFileAllPath->at(secondFileAllPath->size()-2 )  )
 		return true;
 
 	return false;
