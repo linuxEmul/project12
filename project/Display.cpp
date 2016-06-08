@@ -63,6 +63,7 @@ void Display::displayInodeTable()
 	TableManager tb = *TableManager::getInstance();
 	cout << "<< Inode Table >> " << endl ;
 
+	
 	if (tb.getCount(INODET) == 0) {
 		cout << "정보가 없습니다." << endl;
 		return;

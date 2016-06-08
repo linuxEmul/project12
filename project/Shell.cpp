@@ -1,7 +1,7 @@
 #include "Shell.h"
 
-const char* emul_msg = "LinuxEmulator 1.0\0";
-const char* user_msg = "J4\0";
+const char* emul_msg = "LinuxEmulator\0";
+const char* user_msg = "JJJJ\0";
 
 void Shell::run()
 {
@@ -40,6 +40,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 		if (param.size() == 1)
 		{
 			Directory d = dm.Dir_Read(pm.getCurrentPath());
+			cout << "total " << d.entryCnt << endl;
 			for (int i = 0; i < d.entryCnt; i++)
 			{
 				Inode inodeData = fs.inodeBlock->getInodeData(d.entryList[i].inodeNum);
@@ -67,6 +68,8 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 
 			//Ã³¸®
 			Directory d = dm.Dir_Read(stringToCharArr(path));
+
+			cout << "total " << d.entryCnt << endl;
 			for (int i = 0; i < d.entryCnt; i++)
 			{
 				Inode inodeData = fs.inodeBlock->getInodeData(d.entryList[i].inodeNum);
@@ -351,7 +354,11 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 		}
 		else cout << "error" << endl;
 		break;
+	case _clear:
+		system("cls");
+		break;
 	}
+	
 }
 
 void Shell::analyzeCmd(const char * str)
@@ -391,6 +398,8 @@ void Shell::analyzeCmd(const char * str)
 		processCmd(_cd, result);
 	else if (cmd == "quit")
 		processCmd(_quit, result);
+	else if (cmd == "clear")
+		processCmd(_clear, result);
 }
 
 

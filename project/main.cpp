@@ -15,6 +15,10 @@ int main()
 	catch (char* msg) {
 		cerr << msg << endl;
 	}
+	TableManager::allowDelete = true;
+	PathManager::allowDelete = true;
+	FileSystem::allowDelete = true;
+	DirectoryManager::allowDelete = true;
 
 	PathManager& pm = *PathManager::getInstance();
 	PathStack ps;
@@ -35,6 +39,7 @@ int main()
 	{
 		cout << (*myArr)[i] << endl;
 	}
+	
 
 	return 0;
 	TableManager* t = TableManager::getInstance();

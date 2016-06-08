@@ -49,8 +49,8 @@ char* getCurrentTime()
 	struct tm t;
 
 	timer = time(NULL);         //  현재 시각을 초 단위로 얻기
-	localtime_s(&t, &timer);      // 초 단위의 시간을 분라하여 구조체에 넣기
-
+	//localtime_s(&t, &timer);      // 초 단위의 시간을 분라하여 구조체에 넣기
+	t = *localtime(&timer);
 	string str = to_string(t.tm_year + 1900);
 	if (t.tm_mon < 10)
 		str += "0" + to_string(t.tm_mon+1);
@@ -83,7 +83,8 @@ void getCurrentTime(char* currTime)
 	struct tm t;
 
 	timer = time(NULL);         //  현재 시각을 초 단위로 얻기
-	localtime_s(&t, &timer);      // 초 단위의 시간을 분라하여 구조체에 넣기
+	//localtime_s(&t, &timer);      // 초 단위의 시간을 분라하여 구조체에 넣기
+	t = *localtime(&timer);
 
 	string str = to_string(t.tm_year + 1900);
 	if (t.tm_mon < 10)
