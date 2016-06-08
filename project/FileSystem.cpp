@@ -196,10 +196,10 @@ void FileSystem::writeFS( int inodeNum )
 {
 	int blocks;
 	if ( checkInodeBlockNum( inodeNum ) == 4 )
-		blocks = atoi ( inodeBlock[0].getBlocks( inodeNum ) ) / 3;
+		blocks = atoi ( inodeBlock[0].getBlocks( inodeNum ) );
 
 	else
-		blocks = atoi ( inodeBlock[1].getBlocks( inodeNum - 32 ) ) / 3;
+		blocks = atoi ( inodeBlock[1].getBlocks( inodeNum - 32 ) );
 
 	int* dataIndex = new int [ blocks ];
 
@@ -338,10 +338,10 @@ void FileSystem::displayBlockBitmap()
 {
 	for ( int i = 0; i < 100; i++ )
 	{
-		cout << blockBitmap[i] ;
-
 		if ( i != 0 && i % 10 == 0 )
 			cout << endl;
+
+		cout << blockBitmap[i] ;
 	}
 }
 
@@ -349,10 +349,10 @@ void FileSystem::displayInodeBitmap()
 {
 	for ( int i = 0; i < 64; i++ )
 	{
-		cout << inodeBitmap[i] ;
-
 		if ( i != 0 && ( i % 10 == 0 || i == 63 ) )
 			cout << endl;
+
+		cout << inodeBitmap[i] ;
 	}
 }
 
