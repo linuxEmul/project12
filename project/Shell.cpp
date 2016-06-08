@@ -1,4 +1,4 @@
-#include "Shell.h"
+ï»¿#include "Shell.h"
 
 const char* emul_msg = "LinuxEmulator\0";
 const char* user_msg = "JJJJ\0";
@@ -45,28 +45,28 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 			{
 				Inode inodeData = fs.inodeBlock->getInodeData(d.entryList[i].inodeNum);
 				cout << to_string(d.entryList[i].inodeNum) << " ";
-				//¸ğµå Ãâ·Â
+				//ëª¨ë“œ ì¶œë ¥
 				displayMode(inodeData.mode);
 				cout << " " << inodeData.linksCount << " " << inodeData.size << " " << inodeData.ctime << " " << d.entryList[i].name << endl;
 			}
-		} //ÀÏ¹İ ls
+		} //ì¼ë°˜ ls
 		else if (param.size() == 2)
 		{
-			//°æ·Î º¯È¯
+			//ê²½ë¡œ ë³€í™˜
 			string path = param[1];
 			if (pm.isRelativePath(stringToCharArr(path)))
 				path = pm.getAbsolutePath(stringToCharArr(path));
 
-			//ÇØ´ç °æ·Î°¡ Á¸ÀçÇÏ´Â Áö È®ÀÎ
+			//í•´ë‹¹ ê²½ë¡œê°€ ì¡´ì¬í•˜ëŠ” ì§€ í™•ì¸
 			vector<string>& allPath = *pm.getAllAbsPath(stringToCharArr(path));
 			if (!dm.isReallyExist(stringToCharArr(allPath[allPath.size() - 1])))
 			{
-				display("ÇØ´ç °æ·Î°¡ Á¸ÀçÇÏÁö ¾Ê½À´Ï´Ù.");
+				display("í•´ë‹¹ ê²½ë¡œê°€ ì¡´ì¬í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.");
 				display((char*)path.c_str());
 				return;
 			}
 
-			//Ã³¸®
+			//ì²˜ë¦¬
 			Directory d = dm.Dir_Read(stringToCharArr(path));
 
 			cout << "total " << d.entryCnt << endl;
@@ -74,12 +74,12 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 			{
 				Inode inodeData = fs.inodeBlock->getInodeData(d.entryList[i].inodeNum);
 				cout << to_string(d.entryList[i].inodeNum) << " ";
-				//¸ğµå Ãâ·Â
+				//ëª¨ë“œ ì¶œë ¥
 				displayMode(inodeData.mode);
 				cout << " " << inodeData.linksCount << " " << inodeData.size << " " << inodeData.ctime << " " << d.entryList[i].name << endl;
 			}
 
-		} //Àı´ë°æ·Î, »ó´ë°æ·Î
+		} //ì ˆëŒ€ê²½ë¡œ, ìƒëŒ€ê²½ë¡œ
 		else cout << "error" << endl;
 		break;
 
@@ -87,20 +87,20 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 		display(pm.getCurrentPath());
 		if (param.size() == 2)
 		{
-			//°æ·Î º¯È¯
+			//ê²½ë¡œ ë³€í™˜
 			string path = param[1];
 			if (pm.isRelativePath(stringToCharArr(path)))
 				path = pm.getAbsolutePath(stringToCharArr(path));
 
-			//°æ·Î Á¸Àç È®ÀÎ
+			//ê²½ë¡œ ì¡´ì¬ í™•ì¸
 			vector<string>& allPath = *pm.getAllAbsPath(stringToCharArr(path));
 			if (allPath.size() > 1 && !dm.isReallyExist(stringToCharArr(allPath[allPath.size() - 2]))) {
-				display("ÇØ´ç °æ·Î°¡ Á¸ÀçÇÏÁö ¾Ê½À´Ï´Ù.");
+				display("í•´ë‹¹ ê²½ë¡œê°€ ì¡´ì¬í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.");
 				return;
 			}
 			if (dm.isReallyExist(stringToCharArr(allPath[allPath.size() - 1])))
 			{
-				display("ÇØ´ç °æ·Î°¡ ÀÌ¹Ì Á¸ÀçÇÕ´Ï´Ù.");
+				display("í•´ë‹¹ ê²½ë¡œê°€ ì´ë¯¸ ì¡´ì¬í•©ë‹ˆë‹¤.");
 				return;
 			}
 
@@ -112,16 +112,16 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 	case _rmdir:
 		if (param.size() == 2)
 		{
-			//°æ·Î º¯È¯
+			//ê²½ë¡œ ë³€í™˜
 			string path = param[1];
 			if (pm.isRelativePath(stringToCharArr(path)))
 				path = pm.getAbsolutePath(stringToCharArr(path));
 
-			//°æ·Î Á¸Àç È®ÀÎ
+			//ê²½ë¡œ ì¡´ì¬ í™•ì¸
 			vector<string>& allPath = *pm.getAllAbsPath(stringToCharArr(path));
 			if (!dm.isReallyExist(stringToCharArr(allPath[allPath.size() - 1])))
 			{
-				display("ÇØ´ç °æ·Î°¡ Á¸ÀçÇÏÁö ¾Ê½À´Ï´Ù.");
+				display("í•´ë‹¹ ê²½ë¡œê°€ ì¡´ì¬í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.");
 				return;
 			}
 			dm.Dir_Unlink(stringToCharArr(path));
@@ -164,7 +164,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 			vector<string> vAllAbs = *pm.getAllAbsPath(stringToCharArr(path));
 			Directory d = dm.Dir_Read(stringToCharArr(vAllAbs[vAllAbs.size() - 2]));
 			char kinds = dm.isFile(filename, d);
-			if (kinds = 'f')
+			if (kinds == 'f')
 			{
 				caseOfRemoveFile(filename);
 			}
@@ -204,7 +204,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 			string path = param[1], path2 = param[2];
 			if (pm.isRelativePath(stringToCharArr(path)))
 				param[1] = pm.getAbsolutePath(stringToCharArr(path));
-			if(pm.isRelativePath(stringToCharArr(path2)))
+			if (pm.isRelativePath(stringToCharArr(path2)))
 				param[2] = pm.getAbsolutePath(stringToCharArr(path2));
 
 			vector<string> b;
@@ -215,61 +215,61 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 			pm.doAnalyzeFolder(stringToCharArr(param[1]), a);
 			string aName = a[a.size() - 1];
 
-			if ( isSameDirectory(stringToCharArr(param[1]), stringToCharArr(param[2]) ) == true ) 
+			if (isSameDirectory(stringToCharArr(param[1]), stringToCharArr(param[2])) == true)
 			{
 				vector<string>& arr = *pm.getAllAbsPath(stringToCharArr(param[1]));
 				vector<string>& arr2 = *pm.getAllAbsPath(stringToCharArr(param[2]));
-				
-				Directory topdr = dm.Dir_Read( stringToCharArr(arr2[arr2.size() - 2]) ) ;
-				
-				
+
+				Directory topdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size() - 2]));
+
+
 
 				//cout << stringToCharArr(bName );
-					//a, b°°Àº µğ·ºÅä¸®¸é a¸¦ b·Î ÆÄÀÏ¸í º¯°æ
-				if ( topdr.findName( stringToCharArr(bName ) ) == NULL )//ÀÌ¸§ÀÌ Á¸ÀçÇÏÁö ¾ÊÀ¸¸é
+				//a, bÂ°Â°Ã€Âº ÂµÃ°Â·ÂºÃ…Ã¤Â¸Â®Â¸Ã© aÂ¸Â¦ bÂ·Ã Ã†Ã„Ã€ÃÂ¸Ã­ ÂºÂ¯Â°Ã¦
+				if (topdr.findName(stringToCharArr(bName)) == NULL)//Ã€ÃŒÂ¸Â§Ã€ÃŒ ÃÂ¸Ã€Ã§Ã‡ÃÃÃ¶ Â¾ÃŠÃ€Â¸Â¸Ã©
 				{
-					cout << "if¹® ¾È¿¡ µé¾î ¿Ô´Ù " << endl ;
+					cout << "ifÂ¹Â® Â¾ÃˆÂ¿Â¡ ÂµÃ©Â¾Ã® Â¿Ã”Â´Ã™ " << endl;
 
 					//  source   inodenum
-					int cn = topdr.findName( stringToCharArr(aName ))->inodeNum;
-					// »óÀ§µğ·ºÅä¸®ÀÇ inodenum
+					int cn = topdr.findName(stringToCharArr(aName))->inodeNum;
+					// Â»Ã³Ã€Â§ÂµÃ°Â·ÂºÃ…Ã¤Â¸Â®Ã€Ã‡ inodenum
 					int myn = topdr.findName(".")->inodeNum;
-					
-					//source Entry Á¤º¸
-					Entry e ;
-					e.inodeNum = topdr.findName( stringToCharArr(aName))->inodeNum;
-					strcpy(e.name, stringToCharArr( stringToCharArr(bName) ) );
-					
+
+					//source Entry ÃÂ¤ÂºÂ¸
+					Entry e;
+					e.inodeNum = topdr.findName(stringToCharArr(aName))->inodeNum;
+					strcpy(e.name, stringToCharArr(stringToCharArr(bName)));
+
 					topdr.rmDirectory(cn, myn);
 					topdr.addDirectory(e, myn);
-				
+
 				}
 				else
 				{
-					cout << "Á¸Àç" << endl ;
+					cout << "ÃÂ¸Ã€Ã§" << endl;
 				}
 
 			}
 			else
 			{
-				// »ó´ë°æ·Î ¾ÈµÊ.. 
-				// mv ÆÄÀÏ ¾ÆÁ÷ ¾ÈÇÔ
-				
+				// Â»Ã³Â´Ã«Â°Ã¦Â·Ã Â¾ÃˆÂµÃŠ.. 
+				// mv Ã†Ã„Ã€Ã Â¾Ã†ÃÃ· Â¾ÃˆÃ‡Ã”
+
 				vector<string>& arr = *pm.getAllAbsPath(stringToCharArr(param[1]));
 				vector<string>& arr2 = *pm.getAllAbsPath(stringToCharArr(param[2]));
 				//pm.getAllAbsPath( stringToCharArr(param[2]) );
-				Directory topdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 2]));//»óÀ§µğ·ºÅä¸® °´Ã¼
-				
-				// ¿Å±æ ´ë»óÀÌ ÆÄÀÏÀÏ °æ¿ì
-				if(dm.isFile(stringToCharArr(aName),topdr) == 'f'){
+				Directory topdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 2]));//Â»Ã³Ã€Â§ÂµÃ°Â·ÂºÃ…Ã¤Â¸Â® Â°Â´ÃƒÂ¼
+
+																					// Â¿Ã…Â±Ã¦ Â´Ã«Â»Ã³Ã€ÃŒ Ã†Ã„Ã€ÃÃ€Ã Â°Ã¦Â¿Ã¬
+				if (dm.isFile(stringToCharArr(aName), topdr) == 'f') {
 					Entry& entry = *topdr.findName(stringToCharArr(aName));
 					int curinode = entry.inodeNum;
 					int topinode = topdr.findName(".")->inodeNum;
 
-					// .. »èÁ¦
-					topdr.rmDirectory(curinode,topinode);
-					
-					Directory mvdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size()-1])); //¿Å°ÜÁú »óÀ§µğ·ºÅä¸®
+					// .. Â»Ã¨ÃÂ¦
+					topdr.rmDirectory(curinode, topinode);
+
+					Directory mvdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size() - 1])); //Â¿Ã…Â°ÃœÃÃº Â»Ã³Ã€Â§ÂµÃ°Â·ÂºÃ…Ã¤Â¸Â®
 
 					int mvinode = mvdr.findName(".")->inodeNum;
 
@@ -278,22 +278,22 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 					strcpy(e.name, stringToCharArr(aName));
 					mvdr.addDirectory(e, mvinode);
 				}
-				// ¿Å±æ ´ë»óÀÌ µğ·ºÅä¸®ÀÏ °æ¿ì
-				else{
+				// Â¿Ã…Â±Ã¦ Â´Ã«Â»Ã³Ã€ÃŒ ÂµÃ°Â·ÂºÃ…Ã¤Â¸Â®Ã€Ã Â°Ã¦Â¿Ã¬
+				else {
 
 					Directory curdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 1]));
-					 
+
 
 					int curinode = topdr.findName(stringToCharArr(aName))->inodeNum;
 					int topinode = curdr.findName("..")->inodeNum;
 
 					//int temp = curinode;
 
-					// .. »èÁ¦
-					curdr.rmDirectory(topinode,curinode);
-					topdr.rmDirectory(curinode,topinode);
+					// .. Â»Ã¨ÃÂ¦
+					curdr.rmDirectory(topinode, curinode);
+					topdr.rmDirectory(curinode, topinode);
 
-					Directory mvdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size()-1])); //¿Å°ÜÁú »óÀ§µğ·ºÅä¸®
+					Directory mvdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size() - 1])); //Â¿Ã…Â°ÃœÃÃº Â»Ã³Ã€Â§ÂµÃ°Â·ÂºÃ…Ã¤Â¸Â®
 
 					int mvinode = mvdr.findName(".")->inodeNum;
 
@@ -302,16 +302,15 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 					strcpy(e.name, stringToCharArr(aName));
 					mvdr.addDirectory(e, mvinode);
 
-					// .. Ãß°¡
+					// .. ÃƒÃŸÂ°Â¡
 					e.inodeNum = mvinode;
-					strcpy(e.name, stringToCharArr(".."));				
-					curdr.addDirectory(e,curinode);
+					strcpy(e.name, stringToCharArr(".."));
+					curdr.addDirectory(e, curinode);
 				}
 			}
 		}
 		else cout << "error" << endl;
 		break;
-
 
 	case _cp:
 		if (param.size() == 3)
@@ -324,7 +323,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 			//pm.getAllAbsPath( stringToCharArr(param[2]) );
 
 			Directory curdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 1]));
-			Directory topdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 2])); //»óÀ§µğ·ºÅä¸® °´Ã¼
+			Directory topdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 2])); //ìƒìœ„ë””ë ‰í† ë¦¬ ê°ì²´
 
 			int curinode = topdr.findName(stringToCharArr(curDirName))->inodeNum;
 			int topinode = curdr.findName("..")->inodeNum;
@@ -332,7 +331,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 			//curdr.rmDirectory(topinode);
 			//topdr.rmDirectory(curinode);
 
-			Directory mvdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size() - 1])); //¿Å°ÜÁú »óÀ§µğ·ºÅä¸®
+			Directory mvdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size() - 1])); //ì˜®ê²¨ì§ˆ ìƒìœ„ë””ë ‰í† ë¦¬
 
 			Entry e;
 			e.inodeNum = curinode;
@@ -345,13 +344,13 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 	case _cd:
 		if (param.size() == 2)
 		{
-			// cd a ÇöÀç µğ·ºÅä¸®¿¡ ÀÖ´Â µğ·ºÅä¸® a·Î ÀÌµ¿
-			// cd /a/b Àı´ë°æ·Î
-			// cd .. »óÀ§ µğ·ºÅä¸®·Î ÀÌµ¿
-			// cd ../a »ó´ë°æ·Î
+			// cd a í˜„ì¬ ë””ë ‰í† ë¦¬ì— ìˆëŠ” ë””ë ‰í† ë¦¬ aë¡œ ì´ë™
+			// cd /a/b ì ˆëŒ€ê²½ë¡œ
+			// cd .. ìƒìœ„ ë””ë ‰í† ë¦¬ë¡œ ì´ë™
+			// cd ../a ìƒëŒ€ê²½ë¡œ
 
 			dm.closeAllDir();
-			if (pm.isRelativePath(stringToCharArr(param[1])) == true)  //»ó´ë°æ·Î ÀÏ ¶§
+			if (pm.isRelativePath(stringToCharArr(param[1])) == true)  //ìƒëŒ€ê²½ë¡œ ì¼ ë•Œ
 			{
 				pm.setAbsPathInPathStack(pm.getAbsolutePath(stringToCharArr(param[1])));
 			}
@@ -620,17 +619,17 @@ void Shell::caseOfCopyFile(char* sourceFile, char* targetFile)
 
 }
 
-bool Shell::isSameDirectory( char* firstFile, char* secondFile )
+bool Shell::isSameDirectory(char* firstFile, char* secondFile)
 {
 	PathManager& pm = *PathManager::getInstance();
-	
-	char* firstFilePath = pm.getAbsolutePath( firstFile );
-	char* secondFilePath = pm.getAbsolutePath( secondFile );
-	
-	vector<string>* firstFileAllPath = pm.getAllAbsPath( firstFile );
-	vector<string>* secondFileAllPath = pm.getAllAbsPath( secondFile );
 
-	if ( firstFileAllPath->at( firstFileAllPath->size()-2 ) == secondFileAllPath->at(secondFileAllPath->size()-2 )  )
+	char* firstFilePath = pm.getAbsolutePath(firstFile);
+	char* secondFilePath = pm.getAbsolutePath(secondFile);
+
+	vector<string>* firstFileAllPath = pm.getAllAbsPath(firstFile);
+	vector<string>* secondFileAllPath = pm.getAllAbsPath(secondFile);
+
+	if (firstFileAllPath->at(firstFileAllPath->size() - 2) == secondFileAllPath->at(secondFileAllPath->size() - 2))
 		return true;
 
 	return false;
@@ -642,8 +641,8 @@ void Shell::login()
 	cout << "-------------------login--------------------" << endl;
 	cout << "--------------------------------------------" << endl;
 
-	//Path Manager ÃÊ±âÈ­
-	//PathStackÀº ±âº»ÀûÀ¸·Î /homeÀ» °¡Áü
+	//Path Manager ì´ˆê¸°í™”
+	//PathStackì€ ê¸°ë³¸ì ìœ¼ë¡œ /homeì„ ê°€ì§
 	PathManager& pm = *PathManager::getInstance();
 	DirectoryManager& dm = *DirectoryManager::getInstance();
 	PathStack ps;

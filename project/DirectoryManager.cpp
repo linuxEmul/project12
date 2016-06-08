@@ -100,9 +100,18 @@ void DirectoryManager::Dir_Create(char* direc)
 		content.append(";..," + to_string(enList[1].inodeNum));
 		content.append(";");
 		//데이터블록에 데이터 추가(idx는 datablock Index)
-		int idx = fs.writeFS((char*)content.c_str());
+		
+		//할당받은 블록 받아오기
+		char* tmpBlockList = fs.inodeBlock->getDataBlockList(currDirInode);
+		int idx = atoi(tmpBlockList);
+
+		//할당받은 블록 리셋
+		fs.resetDataBlock(&idx, 1);
+		
+		//다시 쓴다
+		int assignedIdx = fs.writeFS((char*)content.c_str());
 		char dataBlockList[] = "   \0";
-		itoa(idx, dataBlockList);
+		itoa(assignedIdx, dataBlockList);
 
 		char size[4];
 		memcpy(size, stringToCharArr(to_string(content.length())), strlen(stringToCharArr(to_string(content.length())))+1);
@@ -312,8 +321,8 @@ Directory* DirectoryManager::returnDir(int in)
 	if (strchr(inode.mode, 'f'))
 		return NULL;
 	int blocks = atoi(inode.blocks); //해당 파일의 블록 수
-	int* dataIdx = new int[blocks];
-	translateCharArrToIntArr(inode.dataBlockList, dataIdx, 3);
+	int dataIdx[20];
+	translateCharArrToIntArr(inode.dataBlockList, dataIdx, blocks);
 
 	DataBlock* dBlock = new DataBlock[blocks];
 
@@ -322,6 +331,7 @@ Directory* DirectoryManager::returnDir(int in)
 		dBlock[i] = fs.dataBlocks[dataIdx[i]-6]; //dataBlock 내용들 
 	}
 	string data = "";
+	cout << "blocks " << blocks << endl;
 	for (int i = 0; i < blocks; i++)
 	{
 		char blockData[BLOCK_SIZE];
