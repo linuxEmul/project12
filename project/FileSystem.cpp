@@ -62,7 +62,7 @@ void FileSystem::readFS(int dataBlockNum, char* buffer)
 {
 	string str = dataBlocks[dataBlockNum - 6].getDataBlockData();
 
-	for (int i = 0; i < str.length(); i++)
+	for (int i = 0; i < strlen( str.c_str()); i++)
 		buffer[i] = str.at(i);
 	buffer[str.length()] = '\0';
 }
