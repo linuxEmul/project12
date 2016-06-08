@@ -107,7 +107,7 @@ void Directory::addDirectory(Entry entry, int inodeNum)
 	하나의 data에다 각 데이터블럭에 분산됬던 것들을 합침
 	*/
 	string filedata = data + content;   // 기존데이터블럭의 내용과 새로운 내용을 합친 것
-
+	cout << "dataIdx : "<< dataIdx << endl;
 	fs.resetDataBlock(dataIdx, blocks);// writeFile에서 writeFS를 부르기 전에 BlockBitmap의 파일에 할당됬던 indxe 초기화
 									   /* 참고 BlockBitmap이 1인 경우만 데이터블럭이 저장되어있는 것이므로 getDatablock은 blockbitmap이 1인지 검사 후 저장된 data return */
 
@@ -146,7 +146,7 @@ void Directory::addDirectory(Entry entry, int inodeNum)
 		}
 		//fs.resetDataBlock(dataIdx, blocks);
 		int returnIdx = fs.writeFS(blockData);
-
+		cout << "returnIdx : " << returnIdx << endl;
 		/*
 		fs.writeFS 에서는
 		block descriptor Table 미할당된 블록 수, -> 초기화할때랑 다시 써줄 때 갱신해줘야 함

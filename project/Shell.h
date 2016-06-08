@@ -18,7 +18,9 @@ private:
 		__RED, __DEFAULT, __GREEN, __BLUE, __YELLOW, __PURPLE, __LIGHT_BLUE, __WHITE
 	};
 public:
-
+	~Shell() {
+		cout << "JJJJ! Bye!" << endl;
+	}
 	void run();
 	void analyzeCmd(const char* str); //명령어 분석
 	void processCmd(CmdList cl, vector<string>& param);

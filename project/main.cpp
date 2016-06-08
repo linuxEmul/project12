@@ -21,6 +21,7 @@ int main()
 	FileSystem::allowDelete = true;
 	DirectoryManager::allowDelete = true;
 
+	/*
 	PathManager& pm = *PathManager::getInstance();
 	PathStack ps;
 
@@ -90,5 +91,6 @@ int main()
 		cout << "file3 Close Error" << endl;
 	if (!tt.fileCloseEvent(file4_handle))
 		cout << "file4 Close Error" << endl;
+		*/
 	return 0;
 }

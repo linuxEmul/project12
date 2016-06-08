@@ -21,16 +21,8 @@ void Shell::run()
 			cout << p;
 		cout << "$";
 		string str = input();
-		if (str == "quit") {
-			analyzeCmd("display t");
-			analyzeCmd("display 0");
-			analyzeCmd("display 1");
-			analyzeCmd("display 2");
-			analyzeCmd("display 3");
-			analyzeCmd("display 4");
-			analyzeCmd("display 5");
+		if (str == "quit")
 			break;
-		}
 		analyzeCmd(stringToCharArr(str));
 	}
 }
@@ -111,7 +103,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 				display("해당 경로가 이미 존재합니다.");
 				return;
 			}
-			
+
 			dm.Dir_Create(stringToCharArr(path));
 		}
 		else cout << "error" << endl;
@@ -159,29 +151,29 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 
 
 	case _rm:
-      if (param.size() == 2)
-      {
-         string path = param[1];
-         DirectoryManager& dirm = *DirectoryManager::getInstance();
-         PathManager& pm = *PathManager::getInstance();
-         char* filename = stringToCharArr(pm.doAnalyzeFolder(stringToCharArr(path))[pm.doAnalyzeFolder(stringToCharArr(path)).size()-1]);
-         
-         if(pm.isRelativePath(stringToCharArr(path)))
-            path = pm.getAbsolutePath(stringToCharArr(path));
+		if (param.size() == 2)
+		{
+			string path = param[1];
+			DirectoryManager& dm = *DirectoryManager::getInstance();
+			PathManager& pm = *PathManager::getInstance();
+			char* filename = stringToCharArr(pm.doAnalyzeFolder(stringToCharArr(path))[pm.doAnalyzeFolder(stringToCharArr(path)).size() - 1]);
 
-         vector<string> vAllAbs = *pm.getAllAbsPath(stringToCharArr(path));
-         Directory d = dirm.Dir_Read(stringToCharArr(vAllAbs[vAllAbs.size()-2]));
-         char kinds = dirm.isFile(filename, d);
-         if (kinds = 'f')
-         {
-            caseOfRemoveFile(filename);
-         }
-         else
-            dm.Dir_Unlink_All(stringToCharArr(path));// casOfRemoveDir이든 뭐든 dir unlink를 불러주는 함수를 넣어주;
+			if (pm.isRelativePath(stringToCharArr(path)))
+				path = pm.getAbsolutePath(stringToCharArr(path));
 
-      }
-      else cout << "error" << endl;
-      break;
+			vector<string> vAllAbs = *pm.getAllAbsPath(stringToCharArr(path));
+			Directory d = dm.Dir_Read(stringToCharArr(vAllAbs[vAllAbs.size() - 2]));
+			char kinds = dm.isFile(filename, d);
+			if (kinds = 'f')
+			{
+				caseOfRemoveFile(filename);
+			}
+			else
+				dm.Dir_Unlink_All(stringToCharArr(path));
+
+		}
+		else cout << "error" << endl;
+		break;
 
 
 	case _pwd:
@@ -196,7 +188,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 		if (param.size() == 3)
 		{
 			string path = param[2];
-			if(pm.isRelativePath(stringToCharArr(param[2])))
+			if (pm.isRelativePath(stringToCharArr(param[2])))
 				path = pm.getAbsolutePath(stringToCharArr(param[2]));
 			int mode = stoi(param[1]);
 			caseOfChmod(stringToCharArr(path), mode);
@@ -204,42 +196,44 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 		else cout << "error" << endl;
 		break;
 
+
 	case _mv:
 		if (param.size() == 3)
 		{
-			//if ( isSameDirectory(param[1].c_str(), param[2].c_str()) )
-			//{
-			//		//a, b같은 디렉토리면 a를 b로 파일명 변경
-			//}
-		//	else
+			/*
+			if ( isSameDirectory( param[1].c_str(), param[2].c_str() ) )
 			{
-				vector<string> a;
-				pm.doAnalyzeFolder(stringToCharArr(param[1]), a);
-				string curDirName = a[a.size() - 1];
-				vector<string>& arr = *pm.getAllAbsPath(stringToCharArr(param[1]));
-				vector<string>& arr2 = *pm.getAllAbsPath(stringToCharArr(param[2]));
-				//pm.getAllAbsPath( stringToCharArr(param[2]) );
-
-				Directory curdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 1]));
-				Directory topdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 2])); //상위디렉토리 객체
-
-				int curinode = topdr.findName(stringToCharArr(curDirName))->inodeNum;
-				int topinode = curdr.findName("..")->inodeNum;
-
-				//int temp = curinode;
-
-				curdr.rmDirectory(topinode,curinode);
-				topdr.rmDirectory(curinode,topinode);
-
-				Directory mvdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size() - 1])); //옮겨질 상위디렉토리
-
-				int mvinode = mvdr.findName("..")->inodeNum;
-
-				Entry e;
-				e.inodeNum = curinode;
-				strcpy(e.name, stringToCharArr(curDirName));
-				mvdr.addDirectory(e, mvinode);
+			a, b같은 디렉토리면 a를 b로 파일명 변경
 			}
+			else
+			{
+			vector<string> a;
+			pm.doAnalyzeFolder(stringToCharArr(param[1]), a);
+			string curDirName = a[a.size() - 1];
+			vector<string>& arr = *pm.getAllAbsPath(stringToCharArr(param[1]));
+			vector<string>& arr2 = *pm.getAllAbsPath(stringToCharArr(param[2]));
+			//pm.getAllAbsPath( stringToCharArr(param[2]) );
+
+			Directory curdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 1]));
+			Directory topdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 2])); //상위디렉토리 객체
+
+			int curinode = topdr.findName(stringToCharArr(curDirName))->inodeNum;
+			int topinode = curdr.findName("..")->inodeNum;
+
+			curdr.rmDirectory(topinode);
+			topdr.rmDirectory(curinode);
+
+			Directory mvdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size() - 1])); //옮겨질 상위디렉토리
+
+			Entry e;
+			e.inodeNum = curinode;
+			strcpy(e.name, stringToCharArr(curDirName));
+			mvdr.addDirectory(e, curinode);
+
+			//dm.Dir_Unlink( stringToCharArr(arr[arr.size()-1]) );
+			//경로 a를 경로 b로 이동
+			}
+			*/
 		}
 		else cout << "error" << endl;
 		break;
@@ -325,7 +319,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 			int fd = stoi(param[1]);
 
 			InodeElement* fileInode = tm.getInodeByFD(fd);
-			
+
 			if (fileInode->inode.mode[0] == 'f')
 			{
 				File file;
@@ -339,12 +333,11 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 		if (param.size() == 2)
 		{
 			Display d;
-			d;
 			if (param[1] == "t")
 			{
 				d.displayFileDiscriptorTable();
 				d.displaySystemFileTable();
-				d.displayInodeTable();				
+				d.displayInodeTable();
 			}
 			else
 			{
@@ -364,7 +357,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 		system("cls");
 		break;
 	}
-	
+
 }
 
 void Shell::analyzeCmd(const char * str)
@@ -408,26 +401,41 @@ void Shell::analyzeCmd(const char * str)
 		processCmd(_clear, result);
 }
 
+char* getAbsPath(char* filename)
+{
+	PathManager& pm = *PathManager::getInstance();
+	char* absFilename = pm.getAbsolutePath(filename);
+
+	return absFilename;
+}
 
 void Shell::caseOfdisplayCat(char* filename)
 {
+	char* absFilename = getAbsPath(filename);
+
 	File file;
-	 int* dirInodeNo = new int;
-   int fd = file.open( file.findFile(filename, dirInodeNo) );
-   if ( fd == 0 )
-      return;
+	int* dirInodeNo = new int;
+	int fd = file.open(file.findFile(absFilename, dirInodeNo));
 
-   delete dirInodeNo;
+	delete dirInodeNo;
 
-	char enter = 13;
-	string sEnter = enter + "";
-	string input = sEnter;
+	if (fd <= 0)
+		return;
+
+	string input;
 	while (input != "q")
 	{
-		if (input == sEnter || input == "")
-			file.displayCat(fd);
+		if (!file.displayCat(fd))
+		{
+			cout << endl;
+			return;
+		}
 
-		cin >> input;
+		cout << endl;
+
+		getline(cin, input);
+		if (input.at(0) == '\n')
+			cout << endl << endl;
 	}
 }
 
@@ -435,10 +443,14 @@ string Shell::getUserInputData()
 {
 	string userInputData;
 	string inputLine = "";
-	while (inputLine != "/quit")
+	while (true)
 	{
-		userInputData += inputLine;
 		getline(cin, inputLine);
+
+		if (inputLine == "/quit")
+			break;
+
+		userInputData += '\n' + inputLine;
 	}
 
 	return userInputData;
@@ -446,88 +458,104 @@ string Shell::getUserInputData()
 
 void Shell::caseOfoverwriteCat(char* filename, string userInputData)
 {
+	char* absFilename = getAbsPath(filename);
 	File file;
-	file.overwriteCat(filename, userInputData);
+	file.overwriteCat(absFilename, userInputData);
 }
 
 void Shell::caseOfjoinCat(char* filename, string userInputData)
 {
+	char* absFilename = getAbsPath(filename);
 	File file;
-	file.joinCat(filename, (char*)userInputData.c_str());
+	file.joinCat(absFilename, (char*)userInputData.c_str());
 }
 
 void Shell::caseOfChmod(char* path, int mode)
 {
-	DirectoryManager& dirm = *DirectoryManager::getInstance();
+	DirectoryManager& dm = *DirectoryManager::getInstance();
 	PathManager& pm = *PathManager::getInstance();
-	char* filename = stringToCharArr(pm.doAnalyzeFolder(path)[pm.doAnalyzeFolder(path).size()-1]);
-	
+	char* filename = stringToCharArr(pm.doAnalyzeFolder(path)[pm.doAnalyzeFolder(path).size() - 1]);
+
 	vector<string> vAllAbs = *pm.getAllAbsPath(path);
-	Directory d = dirm.Dir_Read(stringToCharArr(vAllAbs[vAllAbs.size()-2]));
+	Directory d = dm.Dir_Read(stringToCharArr(vAllAbs[vAllAbs.size() - 2]));
 
 	cout << filename << endl;
-	if ( dirm.isFile(filename, d) == 'f' )
+	if (dm.isFile(filename, d) == 'f')
 	{
 		File file;
 		char c_mode[5];
 		c_mode[0] = 'f';
 		itoa(mode, &c_mode[1], 10);
 		c_mode[4] = '\0';
-		file.changeFileMode(filename, c_mode);
+		file.changeFileMode((char*)vAllAbs[vAllAbs.size() - 2].c_str(), c_mode);
 	}
 	else
-	{		
+	{
 		char c_mode[5];
 		c_mode[0] = 'd';
 		itoa(mode, &c_mode[1], 10);
 		c_mode[4] = '\0';
-		dirm.changeDirMode(stringToCharArr(vAllAbs[vAllAbs.size()-1]), c_mode);
+		dm.changeDirMode(stringToCharArr(vAllAbs[vAllAbs.size() - 1]), c_mode);
 	}
 
 }
 
-
 void Shell::caseOfRemoveFile(char* filename)
 {
+	char* absFilename = getAbsPath(filename);
 	File file;
-	file.removeFile(filename);
+	file.removeFile(absFilename);
 }
 
 void Shell::caseOfSplitFile(char* filename)
 {
 	File file;
 
+	char* absFilename = getAbsPath(filename);
+
+	PathManager& pm = *PathManager::getInstance();
+	vector<string> filenames = pm.doAnalyzeFolder(absFilename);
+	filename = (char*)filenames[filenames.size() - 1].c_str();
+
 	string firstTargetFilename = "x";
 	firstTargetFilename = firstTargetFilename + filename + "a";
 	string secondTargetFilename = "x";
 	secondTargetFilename = secondTargetFilename + filename + "b";
 
-	file.splitFile(filename, (char*)firstTargetFilename.c_str(), (char*)secondTargetFilename.c_str());
+	file.splitFile(absFilename, (char*)firstTargetFilename.c_str(), (char*)secondTargetFilename.c_str());
+
 }
 
 void Shell::caseOfPasteFile(char* firstFile, char* secondFile)
 {
 	File file;
-	file.pasteFile(firstFile, secondFile);
+	char* absFirstFilename = getAbsPath(firstFile);
+	char* absSecondFilename = getAbsPath(secondFile);
+
+	file.pasteFile(absFirstFilename, absSecondFilename);
+
 }
 
-void Shell::caseOfCopyFile( char* sourceFile, char* targetFile )
+void Shell::caseOfCopyFile(char* sourceFile, char* targetFile)
 {
 	File file;
-	file.copyFile( sourceFile, targetFile );
+	char* absSourceFilename = getAbsPath(sourceFile);
+	char* absTargetFilename = getAbsPath(targetFile);
+	file.copyFile(sourceFile, targetFile);
+
 }
 
-bool isSameDirectory( char* firstFile, char* secondFile )
+bool isSameDirectory(char* firstFile, char* secondFile)
 {
 	PathManager& pm = *PathManager::getInstance();
-	
-	char* firstFilePath = pm.getAbsolutePath( firstFile );
-	char* secondFilePath = pm.getAbsolutePath( secondFile );
-	
-	vector<string>* firstFileAllPath = pm.getAllAbsPath( firstFile );
-	vector<string>* secondFileAllPath = pm.getAllAbsPath( secondFile );
 
-	if ( firstFileAllPath[ firstFileAllPath->size()-2 ] == secondFileAllPath[ secondFileAllPath->size()-2 ] )
+	char* firstFilePath = pm.getAbsolutePath(firstFile);
+	char* secondFilePath = pm.getAbsolutePath(secondFile);
+
+	vector<string>* firstFileAllPath = pm.getAllAbsPath(firstFile);
+	vector<string>* secondFileAllPath = pm.getAllAbsPath(secondFile);
+
+	if (firstFileAllPath[firstFileAllPath->size() - 2] == secondFileAllPath[secondFileAllPath->size() - 2])
 		return true;
 
 	return false;

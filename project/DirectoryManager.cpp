@@ -379,7 +379,12 @@ void DirectoryManager::openAllDir(char * path)
 	for (int i = 1; i < vStr.size(); i++)
 	{
 		// 상위 디렉토리를 통해 먼저 inodeNum과 Block을 얻는다.
-		int inodeNum = dir.findName(stringToCharArr(vAllDirec[i]))->inodeNum;
+		Entry* en = dir.findName(stringToCharArr(vAllDirec[i]));
+		if (!en) {
+			cout << "Name : " << vAllDirec[i] << endl;
+			throw "dir의 엔트리에서 name을 찾지 못함.";
+		}
+		int inodeNum = en->inodeNum;
 		Inode inodeBl = fs.inodeBlock->getInodeData(inodeNum);
 		dir = Dir_Read(stringToCharArr(vStr[i]));
 
@@ -417,7 +422,7 @@ bool DirectoryManager::isReallyExist(char * path)
 {
 	try {
 		int i = returnInodeNum(path);
-		cout << "i : " << i << endl;
+		//cout << "i : " << i << endl;
 		return true;
 	}
 	catch (char* msg) {

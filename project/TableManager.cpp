@@ -417,7 +417,7 @@ int TableManager::fileOpenEvent(int inodeNumber, Inode inodeBlock) {
 	sftElement->inodeTableIdx = inodeTableIndex;
 	sftElement->file_pointer = 0;
 	int sftIndex = addElement(SFT, sftElement);
-	cout << "sftIndex : " << sftIndex << endl;
+	//cout << "sftIndex : " << sftIndex << endl;
 	// 5. File Descriptor Table에 System File Table의 Index 저장
 	int fd = addElement(FDT, &sftIndex);
 
