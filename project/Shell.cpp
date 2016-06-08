@@ -354,28 +354,7 @@ void Shell::processCmd(CmdList cl, vector<string>& param)
 	case _cp:
 		if (param.size() == 3)
 		{
-			vector<string> a;
-			pm.doAnalyzeFolder(stringToCharArr(param[1]), a);
-			string curDirName = a[a.size() - 1];
-			vector<string>& arr = *pm.getAllAbsPath(stringToCharArr(param[1]));
-			vector<string>& arr2 = *pm.getAllAbsPath(stringToCharArr(param[2]));
-			//pm.getAllAbsPath( stringToCharArr(param[2]) );
-
-			Directory curdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 1]));
-			Directory topdr = dm.Dir_Read(stringToCharArr(arr[arr.size() - 2])); //상위디렉토리 객체
-
-			int curinode = topdr.findName(stringToCharArr(curDirName))->inodeNum;
-			int topinode = curdr.findName("..")->inodeNum;
-
-			//curdr.rmDirectory(topinode);
-			//topdr.rmDirectory(curinode);
-
-			Directory mvdr = dm.Dir_Read(stringToCharArr(arr2[arr2.size() - 1])); //옮겨질 상위디렉토리
-
-			Entry e;
-			e.inodeNum = curinode;
-			strcpy(e.name, stringToCharArr(curDirName));
-			mvdr.addDirectory(e, curinode);
+			caseOfCopyFile( (char*)param[1].c_str() , (char*)param[2].c_str() );
 		}
 		else cout << "error" << endl;
 		break;
@@ -655,6 +634,8 @@ void Shell::caseOfCopyFile( char* sourceFile, char* targetFile )
 	char* absSourceFile = getAbsPath( sourceFile );
 	char* absTargetFile = getAbsPath( targetFile );
 
+	File file;
+	file.copyFile(absSourceFile, absTargetFile);
 }
 
 void Shell::caseOfFileCopy(char* sourceSysFile, char* targetFile)

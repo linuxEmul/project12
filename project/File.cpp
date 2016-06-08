@@ -162,6 +162,7 @@ void File::writeFile(int fd, char* buffer)//,  TableManager& tm, FileSystem& fs 
 	int length = data.length();
 	char fileSize[7];
 	itoa(length, inode.size);
+	inode.size[strlen( inode.size )] ='\0';
 
 	// 파일의 데이터를 FS의 DataBlock에 써주는 부분
 	char blockData[BLOCK_SIZE];
@@ -566,7 +567,20 @@ void File::pasteFile(char* firstFile, char* secondFile)
 /* copy (local) file */
 void File::copyFile( char* sourceFile, char* targetFile )
 {
+	int* dirInodeNo = new int;
+	int sourceFileFd = open( findFile(sourceFile, dirInodeNo ) );
+	
+	if( sourceFileFd <= 0 )
+		return;
 
+	int targetFileFd = createAndOpen( targetFile, findFile(targetFile, dirInodeNo ), *dirInodeNo );
+	delete dirInodeNo;
+
+
+	char sourceFileData[BLOCK_SIZE*12];
+	readFile(sourceFileFd, sourceFileData, 0);
+
+	writeFile(targetFileFd, sourceFileData);
 }
 
 /*  file copy 관련   */
