@@ -237,6 +237,8 @@ int FileSystem::updateInode_readFile( int inodeNum, Inode inode )
 		inodeBlock[0].setCtime( inodeNum, inode.ctime );
 		inodeBlock[0].setMtime( inodeNum, inode.mtime );
 		inodeBlock[0].setLinksCount( inodeNum, inode.linksCount );
+		inodeBlock[0].setBlocks( inodeNum, inode.blocks );
+		inodeBlock[0].setDataBlockList( inodeNum, inode.dataBlockList );
 	}
 
 	else if ( inodeBlockNum == 5 ) // 이상이면 블럭번호 5에 저장
@@ -247,6 +249,8 @@ int FileSystem::updateInode_readFile( int inodeNum, Inode inode )
 		inodeBlock[1].setCtime( inodeNum - 32, inode.ctime );
 		inodeBlock[1].setMtime( inodeNum - 32, inode.mtime );
 		inodeBlock[1].setLinksCount( inodeNum - 32, inode.linksCount );
+		inodeBlock[0].setBlocks( inodeNum - 32, inode.blocks );
+		inodeBlock[0].setDataBlockList( inodeNum - 32, inode.dataBlockList );
 	}
 
 	return 0;
