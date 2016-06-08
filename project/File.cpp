@@ -90,7 +90,7 @@ void File::readFile(int fd, char* buffer, int size)//,TableManager& tm , FileSys
 	int dataIdx[20];
 	translateCharArrToIntArr(inode.dataBlockList, dataIdx, blocks);
 
-	
+	cout << "blocks " << inode.blocks << endl;
 	int filePointer = ((SFTElement*)tm.getElement(SFT,  *(int*)tm.getElement( FDT, fd ) ) )->file_pointer;// (FT)   getFilePoint( fd ) fd가 가르키는 시스템파일테이블에서 파일포인터를 받아온다
 
 																		  // 하나의 data에다 각 데이터블럭에 분산됬던 것들을 합침
@@ -161,13 +161,12 @@ void File::writeFile(int fd, char* buffer)//,  TableManager& tm, FileSystem& fs 
 	itoa(length, inode.size);
 
 	// 파일의 데이터를 FS의 DataBlock에 써주는 부분
-	char* blockData;
+	char blockData[BLOCK_SIZE];
 	int new_Blocks = 0;
 	while (length != 0)
 	{
 		if (length > BLOCK_SIZE)
 		{
-			blockData = new char[BLOCK_SIZE];
 			strcpy(blockData, (data.substr(0, BLOCK_SIZE)).c_str());
 
 			length -= BLOCK_SIZE;
@@ -175,7 +174,6 @@ void File::writeFile(int fd, char* buffer)//,  TableManager& tm, FileSystem& fs 
 
 		else
 		{
-			blockData = new char[length];
 			strcpy(blockData, (data.substr(0, length)).c_str());
 
 			length = 0;
@@ -426,7 +424,10 @@ void File::overwriteCat(char* file, string data) // file은 path
 {
 	int* dirInodeNo = new int;
 	int fd = createAndOpen( file, findFile(file, dirInodeNo), *dirInodeNo  );
-
+	
+	if (fd <= 0 )
+		return;
+	
 	delete dirInodeNo;
 	writeFile(fd, (char*)data.c_str(), data.length());
 }
@@ -437,7 +438,10 @@ void File::joinCat(char* file, char* data) // file 은 filename
 	int* dirInodeNo = new int;
 	int fd = createAndOpen( file, findFile(file, dirInodeNo), *dirInodeNo  );
 	delete dirInodeNo;
-
+	
+	if (fd <= 0 )
+		return;
+	
 	writeFile(fd, data);
 }
 
