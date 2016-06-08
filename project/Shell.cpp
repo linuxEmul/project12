@@ -598,7 +598,7 @@ void Shell::caseOfChmod(char* path, int mode)
 		File file;
 		char c_mode[5];
 		c_mode[0] = 'f';
-		itoa(mode, &c_mode[1], 10);
+		itoa(mode, &c_mode[1]);
 		c_mode[4] = '\0';
 		file.changeFileMode((char*)vAllAbs[vAllAbs.size() - 1].c_str(), c_mode);
 	}
@@ -622,19 +622,20 @@ void Shell::caseOfRemoveFile(char* filename)
 
 void Shell::caseOfSplitFile(char* filename)
 {
-	File file;
+	PathManager& pm = *PathManager::getInstance();
 
 	char* absFilename = getAbsPath(filename);
-
-	PathManager& pm = *PathManager::getInstance();
+	vector<string>absFilenames = *pm.getAllAbsPath( absFilename );
 	vector<string> filenames = pm.doAnalyzeFolder(absFilename);
 	filename = (char*)filenames[filenames.size() - 1].c_str();
 
 	string firstTargetFilename = "x";
-	firstTargetFilename = firstTargetFilename + filename + "a";
+	firstTargetFilename = absFilenames[absFilenames.size()-2] + "/" + firstTargetFilename + filename + "a"; // 절대경로로 만들어 줌
+	
 	string secondTargetFilename = "x";
-	secondTargetFilename = secondTargetFilename + filename + "b";
+	secondTargetFilename = absFilenames[absFilenames.size()-2] + "/" + secondTargetFilename + filename + "b";
 
+	File file;
 	file.splitFile(absFilename, (char*)firstTargetFilename.c_str(), (char*)secondTargetFilename.c_str());
 
 }

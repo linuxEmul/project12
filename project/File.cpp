@@ -1,4 +1,4 @@
-#include "FIle.h"
+#include "File.h"
 
 
 File::File() { }
@@ -360,6 +360,7 @@ Entry* File::findFile( char* filename,  int* dirInodeNo ) // 절대경로
 	vector<string>::size_type count = pathFiles.size();
 	// 타겟파일 제외한 절대경로를 통해 디렉토리를 찾아 아이노드 번호를 받음
 
+
 	*dirInodeNo = dm.returnInodeNum( (char*) pathFiles.at( count -2 ).c_str() );
 	// 디렉토리의 아이노드 번호를 통해 디렉토리를 받아옴
 	Directory* dir = dm.returnDir( *dirInodeNo );
@@ -504,27 +505,43 @@ void File::removeFile(char* file)// file은 절대경로
 void File::splitFile(char* sourceFile, char* first_target, char* second_target) // sourceFile은 file의 절대경로, first_target은 xFilenamea, second_target은 xFilenameb 
 {
 	// source파일의 데이터를 읽어온다
-	int fd = open( findFile(sourceFile) );
+	int* dirInodeNo = new int;
+	int fd = open( findFile(sourceFile, dirInodeNo) );
 
 	TableManager* t = TableManager::getInstance();
 	TableManager& tm = *t;
 
 	InodeElement* sourceInodeE = tm.getInodeByFD( fd );
-	int halfSize = atoi(sourceInodeE->inode.size) / 2;
+	int fileSize = atoi(sourceInodeE->inode.size);
+	int halfSize1 = 0;
+	int halfSize2 = 0;
+	if ( ( fileSize % 2 ) == 0 )
+	{
+		halfSize1 = fileSize/2;
+		halfSize2 = halfSize1;
+	}
+	else
+	{
+			halfSize1 = fileSize/2 + 1;
+			halfSize2 = halfSize1 - 1;
+	}
 
 	// first_target파일에 반만큼 저장
-	int* dirInodeNo = new int;
-
 	int firstTargetFd = createAndOpen( first_target, findFile( first_target, dirInodeNo ), *dirInodeNo );
-	char* firstFileData;
-	readFile(fd, firstFileData, halfSize);
-	writeFile(firstTargetFd, firstFileData, halfSize);
 
 	// second_target에 나머지 반 저장
 	int secondTargetFd = createAndOpen( second_target, findFile(second_target, dirInodeNo), *dirInodeNo );
-	char* secondFileData;
-	readFile(fd, secondFileData, halfSize);
-	writeFile(secondTargetFd, secondFileData, halfSize);
+	
+	if( firstTargetFd <= 0 || secondTargetFd <= 0 )
+		return;
+
+	char firstFileData[BLOCK_SIZE*12];
+	readFile(fd, firstFileData, halfSize1);
+	writeFile(firstTargetFd, firstFileData, halfSize1);
+
+	char secondFileData[BLOCK_SIZE*12];
+	readFile(fd, secondFileData, halfSize2);
+	writeFile(secondTargetFd, secondFileData, halfSize2);
 
 	delete dirInodeNo;
 }
