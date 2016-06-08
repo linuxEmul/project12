@@ -4,6 +4,10 @@
 #include "InodeBlock.h"
 #include "DataBlock.h"
 
+
+// Test 용도
+PathStack ppp;
+
 void DirectoryManager::Dir_Create(char* direc)
 {
 	try {
@@ -11,16 +15,16 @@ void DirectoryManager::Dir_Create(char* direc)
 		string path = direc;
 
 		Inode inode;
-
+		
 		// inode 설정
 		//비트맵들 1로 설정 ..
-
+		
 		inode.mode = "d777";
 
 		// int EmptyDataNum = dBlockBitmap.getEmpty();
 		// int EmptyInodeNum = inodeBitmap.getEmpty();
 
-
+		ppp.push("DC");
 		// 절대 경로 분석
 		PathManager& pm = *PathManager::getInstance();
 		vector<string> arr;
@@ -62,7 +66,7 @@ void DirectoryManager::Dir_Create(char* direc)
 		char linkCount[2] = "0";
 
 		//Inode 정보 설정
-		inode.blocks = "0";
+		inode.blocks = "1";
 		inode.linksCount = linkCount;
 		inode.mtime = time;
 		inode.size = "0";
@@ -74,10 +78,10 @@ void DirectoryManager::Dir_Create(char* direc)
 			cout << "dir exist" << endl;
 			return;
 		}//디렉토리 중복 검사
-
+		ppp.push("2");
 		currDirInode = fs.writeFS_Dir(inode);
-		curDr.setInodeNum(currDirInode, topDirInode);
-
+		
+		ppp.push("3");
 		
 
 
@@ -85,12 +89,13 @@ void DirectoryManager::Dir_Create(char* direc)
 		{
 			topDr = *returnDir(topDirInode);
 			Entry e;
-
+			ppp.push("4");
 			e.inodeNum = currDirInode;
 			strcpy(e.name, currDir.c_str());
 			topDr.addDirectory(e, topDirInode);
+			ppp.push("5");
 		}
-
+		curDr.setInodeNum(currDirInode, topDirInode);
 		Entry *enList = curDr.entryList;
 
 		string content = ".,";
@@ -127,8 +132,10 @@ void DirectoryManager::Dir_Create(char* direc)
 		inode.size = size;
 		inode.dataBlockList = dataBlockList;
 
+		ppp.push("6");
 		//데이터 블록 추가 후 업데이트
 		fs.updateInode_writeFile(currDirInode, inode);
+		ppp.push("7");
 	}
 	catch (char* msg)
 	{

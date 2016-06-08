@@ -54,6 +54,9 @@ char* getDataBlockIndex(char* data, int size);
 
 /*   Directory   */
 
+
+string trim(string& str);
+
 /*   Directory   */
 
 /*   Path   */
