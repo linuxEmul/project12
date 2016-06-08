@@ -58,6 +58,7 @@ public:
 	// file copy
 	string readSystemFile(char* filename);
 	void copyFile(char* sourceFile, char* targetFile);
+	void copySysFile(char* sourceSysFile, char* targetFile);
 
 	// close
 

@@ -155,6 +155,9 @@ void File::writeFile(int fd, char* buffer)//,  TableManager& tm, FileSystem& fs 
 									   (FS)   block idx와 blockdata를 넘겨서  writeFS에서는 해당 데이터 블럭에 blockdata를 쓴다
 									   */
 
+	if ( inode.size[0] == '0' )
+		data.clear();
+
 	data += buffer;
 	int length = data.length();
 	char fileSize[7];
@@ -228,8 +231,11 @@ void File::writeFile(int fd, char* buffer, int size)//,  TableManager& tm, FileS
 									   (FS)   block idx와 blockdata를 넘겨서  writeFS에서는 해당 데이터 블럭에 blockdata를 쓴다
 									   */
 	char fileSize[4] = { 0 };
-	itoa( size, fileSize );
-	inode.size = fileSize;
+	if ( size != 0 )
+	{
+		itoa( size, fileSize );
+		inode.size = fileSize;
+	}
 
 	char* blockData;
 	int new_Blocks = 0;
@@ -539,6 +545,12 @@ void File::pasteFile(char* firstFile, char* secondFile)
 	
 }
 
+/* copy (local) file */
+void File::copyFile( char* sourceFile, char* targetFile )
+{
+
+}
+
 /*  file copy 관련   */
 string File::readSystemFile(char* filename)
 {
@@ -557,9 +569,9 @@ string File::readSystemFile(char* filename)
 	return data;
 }
 
-void File::copyFile(char* sourceFile, char* targetFile)
+void File::copySysFile(char* sourceSysFile, char* targetFile)
 {
-	string data = readSystemFile(sourceFile);//   System file read 
+	string data = readSystemFile(sourceSysFile);//   System file read 
 
 	int* dirInodeNo = new int;
 	int fd = createAndOpen(targetFile, findFile(targetFile, dirInodeNo), *dirInodeNo );//-> filename으로 file create해줄 것 //-> file open할것 

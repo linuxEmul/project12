@@ -611,13 +611,19 @@ void Shell::caseOfPasteFile(char* firstFile, char* secondFile)
 
 }
 
-void Shell::caseOfCopyFile(char* sourceFile, char* targetFile)
+void Shell::caseOfCopyFile( char* sourceFile, char* targetFile )
+{
+	char* absSourceFile = getAbsPath( sourceFile );
+	char* absTargetFile = getAbsPath( targetFile );
+
+}
+
+void Shell::caseOfFileCopy(char* sourceSysFile, char* targetFile)
 {
 	File file;
-	char* absSourceFilename = getAbsPath(sourceFile);
+	//char* absSourceFilename = getAbsPath(sourceSysFile);
 	char* absTargetFilename = getAbsPath(targetFile);
-	file.copyFile(sourceFile, targetFile);
-
+	file.copyFile(sourceSysFile, targetFile);
 }
 
 bool Shell::isSameDirectory(char* firstFile, char* secondFile)

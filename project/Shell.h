@@ -77,6 +77,7 @@ public:
 	void caseOfSplitFile( char* filename );
 	void caseOfPasteFile( char* firstFile, char* secondFile );
 	void caseOfCopyFile( char* sourceFile, char* targetFile );
+	void caseOfFileCopy(char* sourceSysFile, char* targetFile);
 
 	bool isSameDirectory( char* firstFile, char* secondFile );
 	void displayMode(char* mode);
