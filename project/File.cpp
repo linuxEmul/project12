@@ -236,7 +236,7 @@ void File::writeFile(int fd, char* buffer, int size)//,  TableManager& tm, FileS
 									   writeFS에 넘겨서 저장해준다
 									   (FS)   block idx와 blockdata를 넘겨서  writeFS에서는 해당 데이터 블럭에 blockdata를 쓴다
 									   */
-	char fileSize[4] = { 0 };
+	char fileSize[7] = { 0 };
 	if ( size != 0 )
 	{
 		itoa( size, fileSize );
@@ -469,7 +469,7 @@ bool File::displayCat(int fd)
 {
 	//int fd = openFile( file, *(TableManager::getInstance()) ); // dispalyCat 외부에서 해줄 것
 
-	const int perLineChar = 80;	// 한 라인의 문자 수
+	const int perLineChar = 50;	// 한 라인의 문자 수
 	const int lineNo = 20; // 한번에 출력해줄 라인 수
 
 	char buffer[ perLineChar * lineNo ];
@@ -481,7 +481,7 @@ bool File::displayCat(int fd)
 
 	int i = 0;
 	int lines = 0;
-	while( dataSize > 0 )
+	while( dataSize >= 0 )
 	{
 		cout << buffer[i];
 		i++;
